@@ -26,7 +26,6 @@ namespace GameServer
         {
             public int id;
             public UdpClient udpClient;
-
             public IPEndPoint endPoint;
 
             public UDP(int instanceID)
