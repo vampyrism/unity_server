@@ -52,12 +52,6 @@ namespace GameServer
             MaxNumConnections = maxConn;
             Port = port;
             initializeClientDictionary();
-            tcpListener = new TcpListener(IPAddress.Any, Port);
-            tcpListener.Start();
-            tcpListener.BeginAcceptTcpClient(new AsyncCallback(UponConnectionCallback), null);
-            Console.WriteLine("Connection accepted");
-
-
             //UDP related
             udpListener = new UdpClient(port);
             udpListener.BeginReceive(UponReceiveUDPCallback, null);

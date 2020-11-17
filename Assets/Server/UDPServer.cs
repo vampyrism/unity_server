@@ -11,6 +11,29 @@ using Debug = UnityEngine.Debug;
 
 namespace Assets.Server
 {
+    public static int MaxNumConnections { get; private set; }
+    public delegate void PacketHandler(int id, Packet packet);
+    public static Dictionary<int, PacketHandler> packetHandlers;
+    public static Dictionary<int, Client> connectedClients = new Dictionary<int, Client>();
+
+
+    public static void initializeClientDictionary()
+    {
+        for (int i = 1; i <= MaxNumConnections; i++)
+        {
+            connectedClients.Add(i, new Client(i));
+        }
+
+        packetHandlers = new Dictionary<int, PacketHandler>()
+        {
+            { (int)ClientPackets.welcomeReceived, ServerHandler.TestPacketReceived }
+        };
+
+    }
+
+
+
+
     class UDPServer
     {
         IPEndPoint serverEndpoint;
