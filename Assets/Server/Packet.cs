@@ -48,9 +48,10 @@ namespace GameServer
 
         public int Length()
         {
-            return buffer.Count;        }
+            return buffer.Count;        
+        }
 
-            public void GretaThunberg(bool pantaMera = true)
+        public void GretaThunberg(bool pantaMera = true)
         {
             if (pantaMera)
             {
