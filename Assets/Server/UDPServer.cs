@@ -13,10 +13,19 @@ namespace Assets.Server
 {
     class UDPServer
     {
+        private static readonly UDPServer instance = new UDPServer();
+
+        public static UDPServer getInstance()
+        {
+            return instance;
+        }
+
         IPEndPoint serverEndpoint;
         UdpClient socket;
 
-        public UDPServer()
+        List<IPEndPoint> clients;
+
+        private UDPServer()
         {
             this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
         }
@@ -31,8 +40,12 @@ namespace Assets.Server
                 while (true)
                 {
                     byte[] data = new byte[1024];
+                    
                     data = this.socket.Receive(ref this.serverEndpoint);
-                    Debug.Log(Encoding.ASCII.GetString(data, 0, data.Length));
+                    String ip = this.serverEndpoint.Address.ToString();
+                    int port = this.serverEndpoint.Port;
+
+                    Debug.Log("Got message \"" + Encoding.ASCII.GetString(data, 0, data.Length) + "\" from " + ip + ":" + port.ToString());
                 }
             });
         }
