@@ -9,79 +9,93 @@ namespace GameServer
 
     public class Packet : IDisposable
     {
-        private List<byte> buffer;
-        private byte[] readableBuffer;
-        private int readPos;
+        private List<byte> readBuffer;
+        private byte[] sendBuffer;
+        private int cursor;
 
-
+//##################################################### Packet types ###########################################
         public enum hello
         {
 
         }
 
 
-        public Packet()
-        {
-            buffer = new List<byte>(); 
-            readPos = 0; 
-        }
-
+//the id is the type of packet we want to send
         public Packet(int id)
         {
-            buffer = new List<byte>(); 
-            readPos = 0;
+            readBuffer = new List<byte>(); 
+            cursor = 0;
 
             Write(id); 
         }
 
 
-        public void WriteLength()
+//####################################### Utility methods ##############################################
+         //Could be done in the packet handler too i suppose
+        public void AddPacketLength()
         {
-            buffer.InsertRange(0, BitConverter.GetBytes(buffer.Count));        
+            readBuffer.InsertRange(0, BitConverter.GetBytes(readBuffer.Count));        
         }
 
         public byte[] ToArray()
         {
-            readableBuffer = buffer.ToArray();
-            return readableBuffer;
+            sendBuffer = readBuffer.ToArray();
+            return sendBuffer;
         }
 
         public int Length()
         {
-            return buffer.Count;        
+            return readBuffer.Count;        
         }
 
-        public void GretaThunberg(bool pantaMera = true)
+        public void ReUsePacket(bool pantaMera = true)
         {
             if (pantaMera)
             {
-                buffer.Clear(); 
-                readableBuffer = null;
-                readPos = 0; 
+                readBuffer.Clear(); 
+                sendBuffer = null;
+                cursor = 0; 
             }
             else
             {
-                readPos -= 4;            }
+                cursor -= 4;            }
         }
 
-        public void Write(int value)
+//####################################### Writing different datatypes ##################################
+        public void Write(int IntToWrite)
         {
-            buffer.AddRange(BitConverter.GetBytes(value));
-        }
-        public void Write(string value)
-        {
-            Write(value.Length);
-            buffer.AddRange(Encoding.ASCII.GetBytes(value)); 
+            readBuffer.AddRange(BitConverter.GetBytes(IntToWrite));
         }
 
+        public void Write(float FloatToWrite)
+        {
+            readBuffer.AddRange(BitConverter.GetBytes(FloatToWrite));
+        }
+
+        public void Write(string StringToWrite)
+        {
+           //Likely gonna need to write the length of the string first or last
+           //otherwise you wont know where the string ends
+            Write(StringToWrite.Length);
+            readBuffer.AddRange(Encoding.ASCII.GetBytes(StringToWrite)); 
+        }
+
+        public void Write(bool BoolToWrite)
+        {
+            readBuffer.AddRange(BitConverter.GetBytes(BoolToWrite));
+        }
+
+
+
+//###################################### Reading different datatypes #####################################
         public byte[] ReadBytes(int length, bool cursor = true)
         {
-            if (buffer.Count > readPos)
+            if (readBuffer.Count > cursor)
             {
-                byte[] value = buffer.GetRange(readPos, length).ToArray(); 
+                byte[] value = readBuffer.GetRange(cursor, length).ToArray(); 
                 if (cursor)
                 {
-                    readPos += length;
+                    cursor += length;
                 }
                 return value;
             }
@@ -94,12 +108,12 @@ namespace GameServer
 
         public int ReadInt(bool cursor = true)
         {
-            if (buffer.Count > readPos)
+            if (readBuffer.Count > cursor)
             {
-                int value = BitConverter.ToInt32(readableBuffer, readPos); 
+                int value = BitConverter.ToInt32(sendBuffer, cursor); 
                 if (cursor)
                 {
-                    readPos += 4; 
+                    cursor += 4; 
                 }
                 return value; 
             }
@@ -113,10 +127,10 @@ namespace GameServer
             try
             {
                 int length = ReadInt();
-                string value = Encoding.ASCII.GetString(readableBuffer, readPos, length); 
+                string value = Encoding.ASCII.GetString(sendBuffer, cursor, length); 
                 if (cursor && value.Length > 0)
                 {
-                    readPos += length; 
+                    cursor += length; 
                 }
                 return value;
             }
@@ -126,19 +140,14 @@ namespace GameServer
             }
         }
 
+
+//############################################# Disposable interface methods ##############################################
         private bool disposed = false;
 
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    buffer = null;
-                    readableBuffer = null;
-                    readPos = 0;
-                }
-
                 disposed = true;
             }
         }
