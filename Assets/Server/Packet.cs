@@ -148,6 +148,13 @@ namespace GameServer
         {
             if (!disposed)
             {
+                if (disposing)
+                {
+                    buffer = null;
+                    readableBuffer = null;
+                    readPos = 0;
+                }
+
                 disposed = true;
             }
         }
