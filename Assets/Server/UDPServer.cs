@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -13,8 +12,17 @@ namespace Assets.Server
 {
     class UDPServer
     {
+        private static readonly UDPServer instance = new UDPServer();
+
+        public static UDPServer getInstance()
+        {
+            return instance;
+        }
+
         IPEndPoint serverEndpoint;
         UdpClient socket;
+
+        List<IPEndPoint> clients;
 
         public UDPServer()
         {
