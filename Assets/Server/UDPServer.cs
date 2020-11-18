@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -24,7 +25,7 @@ namespace Assets.Server
 
         List<IPEndPoint> clients;
 
-        public UDPServer()
+        private UDPServer()
         {
             this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
         }
@@ -39,8 +40,12 @@ namespace Assets.Server
                 while (true)
                 {
                     byte[] data = new byte[1024];
+                    
                     data = this.socket.Receive(ref this.serverEndpoint);
-                    Debug.Log(Encoding.ASCII.GetString(data, 0, data.Length));
+                    String ip = this.serverEndpoint.Address.ToString();
+                    int port = this.serverEndpoint.Port;
+
+                    Debug.Log("Got message \"" + Encoding.ASCII.GetString(data, 0, data.Length) + "\" from " + ip + ":" + port.ToString());
                 }
             });
         }
