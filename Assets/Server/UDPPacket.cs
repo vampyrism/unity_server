@@ -174,16 +174,18 @@ namespace Assets.Server
             // Indices for the values in the schema
             // Bytes   | Description
             // --------------------------
+            //0-1 SenderID
+            private static readonly int SENDER_ID = 0;
             // 0-1     | Sequence number
-            private static readonly int SEQUENCE_NUMBER = 0;
+            private static readonly int SEQUENCE_NUMBER = 1;
             // 2-3     | Entity ID
-            private static readonly int ENTITY_ID = 2;
+            private static readonly int ENTITY_ID = 3;
             //
-            private static readonly int PACKET_TYPE = 4
+            private static readonly int PACKET_TYPE = 5;
             // 4       | Entity action type
-            private static readonly int ACTION_TYPE = 5;
+            private static readonly int ACTION_TYPE = 6;
             // 5       | Entity action descriptor
-            private static readonly int ACTION_DESCRIPTOR = 6;
+            private static readonly int ACTION_DESCRIPTOR = 7;
 
             // Byte array containing the information
             private byte[] schema = new byte[SCHEMA_SIZE];
@@ -204,6 +206,8 @@ namespace Assets.Server
                 SetBytes(actionType, ACTION_TYPE);
                 SetBytes(actionDescriptor, ACTION_DESCRIPTOR);
             }
+
+            
 
             // Create empty message
             public Message(){}
@@ -230,6 +234,12 @@ namespace Assets.Server
             public short GetShort(int readCursor) 
             {
                 return BitConverter.ToInt16(schema, readCursor);
+            }
+
+
+            public short GetInt(int readCursor) 
+            {
+                return BitConverter.ToInt32(schema, readCursor);
             }
 
             public float GetFloat(int readCursor)
