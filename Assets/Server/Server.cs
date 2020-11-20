@@ -1,6 +1,7 @@
 ﻿using Assets.Server;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class Server : MonoBehaviour
@@ -9,12 +10,12 @@ public class Server : MonoBehaviour
     void Start()
     {
         Debug.Log("Starting server...");
-        UDPServer.getInstance().Init();
+        UDPServer.GetInstance().Init();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
