@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-// Private class for making sure each message adheres to the schema.
+// This is an abstract class for implementing different kinds of messages.
+// Can also deserialize a message and its' type from bytes. 
+
 namespace Assets.Server 
 {
     public abstract class Message
@@ -12,6 +14,7 @@ namespace Assets.Server
         protected static readonly byte PICKUP = 1;
         protected static readonly byte ATTACK = 2;
 
+        // Factory dictionary for message types
         private static readonly Dictionary<byte, Func<byte[], int, Message>> typeConstructors = 
         new Dictionary<byte, Func<byte[], int, Message>>()
         {
@@ -27,8 +30,6 @@ namespace Assets.Server
         }
 
         // Abstract
-
-        // Size of message type in bytes
 
         // Return an efficient representation of the message as byte array
         public abstract byte[] Serialize();

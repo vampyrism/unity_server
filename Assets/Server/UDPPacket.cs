@@ -51,9 +51,9 @@ namespace Assets.Server
         }
 
         // See if adding one more message would mean we're still below safe threshold
-        public bool SafeToAdd()
+        public bool SafeToAdd(int size)
         {
-            return true; //(this.Length() + 1) * Message.SCHEMA_SIZE < SAFE_PAYLOAD;
+            return this.size + size < SAFE_PAYLOAD; 
         }
 
         public void AddMessage(Message message)
@@ -136,6 +136,7 @@ namespace Assets.Server
                 {
                     messages = null;
                     payload = null;
+                    size = 0;
                 }
 
                 disposed = true;
