@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 
 namespace Assets.Server 
 {
-    public class MovementMessage : Message
+    public class AttackMessage : Message
     {
         // Total size of message
         public static readonly int MESSAGE_SIZE = 26;
@@ -43,19 +43,21 @@ namespace Assets.Server
         // Byte array containing the information
         private byte[] message = new byte[MESSAGE_SIZE];
 
-        public MovementMessage(byte[] bytes)
+        public AttackMessage(byte[] bytes)
         {
             bytes.CopyTo(message, 0);
+            message[TYPE_ID] = ATTACK;
         }
 
-        public MovementMessage(byte[] bytes, int cursor)
+        public AttackMessage(byte[] bytes, int cursor)
         {
             Array.Copy(bytes, cursor, message, 0, MESSAGE_SIZE);
+            message[TYPE_ID] = ATTACK;
         }
 
-        public MovementMessage(short seqNum, short entityId, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
+        public AttackMessage(short seqNum, short entityId, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
         {
-            message[TYPE_ID] = MOVEMENT;
+            message[TYPE_ID] = ATTACK;
             SetSequenceNumber(seqNum);
             SetEntityId(entityId);
             SetActionType(actionType);

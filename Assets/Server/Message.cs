@@ -15,10 +15,11 @@ namespace Assets.Server
         private static readonly Dictionary<byte, Func<byte[], int, Message>> typeConstructors = 
         new Dictionary<byte, Func<byte[], int, Message>>()
         {
-            { MOVEMENT, (byte[] bytes, int cursor) => new MovementMessage(bytes, cursor) }
+            { MOVEMENT, (byte[] bytes, int cursor) => new MovementMessage(bytes, cursor) },
+            { ATTACK,   (byte[] bytes, int cursor) => new AttackMessage(bytes, cursor) }
         };
 
-        // Parse bytes in order and return appropriate Message type
+        // Parse bytes and return appropriate Message type
         public static Message Deserialize(byte[] bytes, int cursor) 
         {
             byte type = bytes[cursor];
