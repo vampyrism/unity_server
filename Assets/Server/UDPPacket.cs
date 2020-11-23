@@ -146,6 +146,7 @@ namespace Assets.Server
             byte[] message = new byte[Message.SCHEMA_SIZE];
             while (cursor < length)
             {
+                
                 Array.Copy(bytes, cursor, message, 0, Message.SCHEMA_SIZE);
                 AddMessage(message);
                 cursor += Message.SCHEMA_SIZE;

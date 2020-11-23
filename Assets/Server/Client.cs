@@ -7,7 +7,7 @@ using System.Data;
 using System.Runtime.InteropServices.ComTypes;
 using System.ComponentModel;
 
-namespace GameServer
+namespace Assets.Server
 {
     class Client
     {
@@ -43,15 +43,12 @@ namespace GameServer
                 ServerLogic.SendUDPPacket(endPoint, packet);
             }
 
-            public void HandleData(Packet packet)
+            public void HandleData(List<Message> dataToHandle)
             {
-                int length = packet.ReadInt();
-                byte[] receivedData = packet.ReadBytes(length);
+                List[0].Handle() 
 
-                using (Packet pkt = new Packet(receivedData))
-                {
-                    int packetID = pkt.ReadInt();
-                    ServerLogic.packetHandlers[packetID](id, pkt);
-                }
+
             }
         }
+    }                                 
+}

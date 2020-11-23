@@ -38,16 +38,16 @@ namespace Assets.Server
     public class MovementPacket : UDPPacket 
     {
         public static readonly int SCHEMA_SIZE = 27;
-        // 7-10    | Entity X coordinate
-        private static readonly int X_COORDINATE = 7;
-        // 11-12   | Entity Y coordinate
-        private static readonly int Y_COORDINATE = 11;
-        // 15-18   | Entity rotation
-        private static readonly int ROTATION = 15;
-        // 19-22   | Entity X velocity
-        private static readonly int X_VELOCITY = 19;
-        // 23-26   | Entity Y velocity
-        private static readonly int Y_VELOCITY = 23;
+        // 8-11    | Entity X coordinate
+        private static readonly int X_COORDINATE = 8;
+        // 12-13   | Entity Y coordinate
+        private static readonly int Y_COORDINATE = 12;
+        // 16-19   | Entity rotation
+        private static readonly int ROTATION = 16;
+        // 20-23   | Entity X velocity
+        private static readonly int X_VELOCITY = 20;
+        // 24-27   | Entity Y velocity
+        private static readonly int Y_VELOCITY = 24;
 
 
         public MovementMessage(short seqNum, short entityId, short packetType, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
