@@ -155,5 +155,10 @@ namespace Assets.Server
 
             return s;
         }
+
+        public override void Accept(IMessageVisitor v)
+        {
+            v.Visit(this);
+        }
     }
 }

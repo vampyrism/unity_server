@@ -36,5 +36,10 @@ namespace Assets.Server
 
         // Return size of the message in bytes
         public abstract int Size();
+
+        public virtual void Accept(IMessageVisitor v)
+        {
+            throw new Exception("Visitor not implemented for class");
+        }
     }
 }

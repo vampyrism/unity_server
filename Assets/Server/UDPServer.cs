@@ -23,18 +23,37 @@ namespace Assets.Server
         IPEndPoint serverEndpoint;
         UdpClient socket;
 
-        List<IPEndPoint> clients;
+        Dictionary<(String, int), IPEndPoint> clients;
+
+        UInt16 remoteSeqNum = 0;
+        UInt16 localSeqNum = 0;
+
+        Server server;
+
 
         private UDPServer()
         {
             this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
+            this.remoteSeqNum = 0;
+            this.localSeqNum = 0;
         }
 
-        public void Init()
+        private void AckPacket(UInt16 seq)
         {
+            if (remoteSeqNum < seq)
+            {
+                remoteSeqNum = seq;
+            }
+        }
+
+        public void Init(Server server)
+        {
+            this.server = server;
             this.socket = new UdpClient(serverEndpoint);
+            this.clients = new Dictionary<(string, int), IPEndPoint>();
             Debug.Log("Started socket on port " + 9000);
 
+            // Server main thread
             Task.Run(() =>
             {
                 while (true)
@@ -45,9 +64,44 @@ namespace Assets.Server
                     String ip = this.serverEndpoint.Address.ToString();
                     int port = this.serverEndpoint.Port;
 
-                    Debug.Log("Got message \"" + Encoding.ASCII.GetString(data, 0, data.Length) + "\" from " + ip + ":" + port.ToString());
+                    if (!this.clients.ContainsKey((ip, port)))
+                    {
+                        this.clients.Add((ip, port), new IPEndPoint(this.serverEndpoint.Address, port)); // TODO: Refactor to client.
+                    }
+
+                    HandleRawPacket(data, ip, port);
                 }
             });
+        }
+
+        public void HandleRawPacket(byte[] data, String ip, int port)
+        {
+            // AckPacket(pcktseq);
+
+            UDPPacket packet = new UDPPacket(data);
+
+            List<Message> messages = packet.GetMessages();
+            this.server.HandleMessages(messages);
+        }
+
+        public void FixedUpdate()
+        {
+            try
+            {
+                foreach (IPEndPoint endpoint in this.clients.Values.ToArray())
+                {
+                    int len = 2 + 2;
+                    byte[] res = new byte[len];
+
+
+                    this.socket.Send(res, res.Length, endpoint);
+                    this.localSeqNum += 1;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Exception from send task: " + e.Message);
+            }
         }
     }
 }

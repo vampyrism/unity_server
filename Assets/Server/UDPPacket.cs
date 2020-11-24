@@ -22,7 +22,7 @@ using UnityEngine;
 namespace Assets.Server
 {
 
-    public class UDPPacket : IDisposable
+    public class UDPPacket
     {
 
         // The payload should not exceed 508 bytes for the most reliable UDP communication.
@@ -36,10 +36,6 @@ namespace Assets.Server
         
         // Total size of all messages in list
         private int size = 0;
-
-        private bool disposed = false;
-
-
 
         // Constructor
 
@@ -123,31 +119,5 @@ namespace Assets.Server
 
             Debug.Log("--------------------");
         }
-
-        // Implementation of displosable interface
-
-
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    messages = null;
-                    payload = null;
-                    size = 0;
-                }
-
-                disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
     }
 } 
