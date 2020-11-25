@@ -58,23 +58,24 @@ namespace Assets.Server
             {
                 while (true)
                 {
-                    Debug.Log("Received packet");
                     byte[] data = new byte[2048];
                     
                     data = this.socket.Receive(ref this.serverEndpoint);
+                    Debug.Log("Received packet");
                     String ip = this.serverEndpoint.Address.ToString();
                     int port = this.serverEndpoint.Port;
-
-                    if (!this.clients.ContainsKey((ip, port)))
-                    {
-                        this.clients.Add((ip, port), new IPEndPoint(this.serverEndpoint.Address, port)); // TODO: Refactor to client.
-                    }
 
                     if (data.SequenceEqual(ASCIIEncoding.ASCII.GetBytes("Knock, knock")))
                     {
                         Debug.Log("New client connecting!");
                         byte[] res = ASCIIEncoding.ASCII.GetBytes("VAMPIRES!");
                         this.socket.Send(res, res.Length, this.serverEndpoint);
+
+                        if (!this.clients.ContainsKey((ip, port)))
+                        {
+                            this.clients.Add((ip, port), new IPEndPoint(this.serverEndpoint.Address, port)); // TODO: Refactor to client.
+                        }
+
                         continue;
                     }
 
@@ -90,7 +91,14 @@ namespace Assets.Server
             UDPPacket packet = new UDPPacket(data);
 
             List<Message> messages = packet.GetMessages();
-            this.server.HandleMessages(messages);
+            try
+            {
+                this.server.HandleMessages(messages);
+            } 
+            catch(Exception e)
+            {
+                Debug.LogError("Exception when handling messages: " + e.Message);
+            }
         }
 
         public void FixedUpdate()
@@ -99,13 +107,13 @@ namespace Assets.Server
             {
                 foreach (IPEndPoint endpoint in this.clients.Values.ToArray())
                 {
-                    int len = 2 + 2;
+                    int len = 508;
                     byte[] res = new byte[len];
 
-                    MovementMessage m = new MovementMessage(this.localSeqNum, 1, 0, 0, 0, 0, 0, 0, 0);
-                    UDPPacket packet = new UDPPacket();
-                    packet.AddMessage(m);
-                    res = packet.Serialize();
+                    //MovementMessage m = new MovementMessage(this.localSeqNum, 1, 0, 0, 0, 0, 0, 0, 0);
+                    //UDPPacket packet = new UDPPacket();
+                    //packet.AddMessage(m);
+                    //res = packet.Serialize();
 
                     this.socket.Send(res, res.Length, endpoint);
                     this.localSeqNum += 1;

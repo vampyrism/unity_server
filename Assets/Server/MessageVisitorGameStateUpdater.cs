@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Server
 {
@@ -10,12 +11,19 @@ namespace Assets.Server
     {
         public void Visit(MovementMessage m)
         {
-
+            Debug.Log(m);
         }
 
         public void Visit(AttackMessage m)
         {
-
+            Debug.Log(m);
         }
+
+        public void Visit(EntityUpdateMessage m)
+        {
+            Debug.Log(m);
+        }
+
+        public void Visit(Message m) { Debug.Log(m); }
     }
 }
