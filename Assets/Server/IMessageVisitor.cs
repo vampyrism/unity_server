@@ -8,7 +8,7 @@ namespace Assets.Server
 {
     public interface IMessageVisitor
     {
-        public void Visit(MovementMessage m);
-        public void Visit(AttackMessage m);
+        void Visit(MovementMessage m);
+        void Visit(AttackMessage m);
     }
 }

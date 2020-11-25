@@ -53,7 +53,7 @@ namespace Assets.Server
             Array.Copy(bytes, cursor, message, 0, MESSAGE_SIZE);
         }
 
-        public MovementMessage(short seqNum, short entityId, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
+        public MovementMessage(ushort seqNum, ushort entityId, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
         {
             message[TYPE_ID] = MOVEMENT;
             SetSequenceNumber(seqNum);
@@ -69,12 +69,12 @@ namespace Assets.Server
 
         // The Setters will convert the argument to bytes and copy them into the message buffer
 
-        public void SetSequenceNumber(short sn)
+        public void SetSequenceNumber(ushort sn)
         {
             Array.Copy(BitConverter.GetBytes(sn), 0, message, SEQUENCE_NUMBER, 2);
         }
 
-        public void SetEntityId(short ei)
+        public void SetEntityId(ushort ei)
         {
             Array.Copy(BitConverter.GetBytes(ei), 0, message, ENTITY_ID, 2);
         }
@@ -116,9 +116,9 @@ namespace Assets.Server
 
         // Getters 
 
-        public short GetSequenceNumber() => BitConverter.ToInt16(message, SEQUENCE_NUMBER);
+        public ushort GetSequenceNumber() => BitConverter.ToUInt16(message, SEQUENCE_NUMBER);
 
-        public short GetEntityId() => BitConverter.ToInt16(message, ENTITY_ID);
+        public ushort GetEntityId() => BitConverter.ToUInt16(message, ENTITY_ID);
 
         public byte GetActionType() => message[ACTION_TYPE];
 

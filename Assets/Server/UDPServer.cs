@@ -58,7 +58,8 @@ namespace Assets.Server
             {
                 while (true)
                 {
-                    byte[] data = new byte[1024];
+                    Debug.Log("Received packet");
+                    byte[] data = new byte[2048];
                     
                     data = this.socket.Receive(ref this.serverEndpoint);
                     String ip = this.serverEndpoint.Address.ToString();
@@ -67,6 +68,14 @@ namespace Assets.Server
                     if (!this.clients.ContainsKey((ip, port)))
                     {
                         this.clients.Add((ip, port), new IPEndPoint(this.serverEndpoint.Address, port)); // TODO: Refactor to client.
+                    }
+
+                    if (data.SequenceEqual(ASCIIEncoding.ASCII.GetBytes("Knock, knock")))
+                    {
+                        Debug.Log("New client connecting!");
+                        byte[] res = ASCIIEncoding.ASCII.GetBytes("VAMPIRES!");
+                        this.socket.Send(res, res.Length, this.serverEndpoint);
+                        continue;
                     }
 
                     HandleRawPacket(data, ip, port);
@@ -93,6 +102,10 @@ namespace Assets.Server
                     int len = 2 + 2;
                     byte[] res = new byte[len];
 
+                    MovementMessage m = new MovementMessage(this.localSeqNum, 1, 0, 0, 0, 0, 0, 0, 0);
+                    UDPPacket packet = new UDPPacket();
+                    packet.AddMessage(m);
+                    res = packet.Serialize();
 
                     this.socket.Send(res, res.Length, endpoint);
                     this.localSeqNum += 1;
