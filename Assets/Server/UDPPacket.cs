@@ -1,5 +1,4 @@
 
-@@ -0,0 +1,341 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -9,26 +8,13 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime;
 using System.Security.Cryptography;
+using UnityEngine;
 
 //
 // This module handles serialization of the information sent over UDP between the game client and server.
 // It implements the IDisposable interface in order to give greater control of when the object
 // is released.
 // 
-// The UDPPacket design follows the following schema:
-// 
-// Bytes   | Description
-// --------------------------
-// 0-1     | Sequence number
-// 2-3     | Entity ID
-// 4       | Entity action type
-// 5       | Entity action descriptor
-// 6-9     | Entity X coordinate
-// 10-13   | Entity Y coordinate
-// 14-17   | Entity rotation
-// 18-21   | Entity X velocity
-// 22-25   | Entity Y velocity
-//
 // Multiple messages can be packed into the same packet, since the message size is far below the safe threshold
 // of 508 bytes. If this threshold is surpassed the packet may be split up into several IP packages which is not ideal.
 // 
@@ -64,10 +50,14 @@ namespace Assets.Server
         // The payload should not exceed 508 bytes for the most reliable UDP communication.
         public static readonly int SAFE_PAYLOAD = 508;
 
-        // Keep track of all the messages to serialize
+        // Keep track of all the messages to serialize  
         private List<Message> messages = new List<Message>();
+
         // Readable buffer for serialization
         private byte[] payload;
+        
+        // Total size of all messages in list
+        private int size = 0;
 
         private bool disposed = false;
 
@@ -83,38 +73,30 @@ namespace Assets.Server
         }
 
         // See if adding one more message would mean we're still below safe threshold
-        public bool SafeToAdd()
+        public bool SafeToAdd(int size)
         {
-            return (this.Length() + 1) * Message.SCHEMA_SIZE < SAFE_PAYLOAD;
+            return this.size + size < SAFE_PAYLOAD; 
         }
 
-        // Add new message to the packet
-        public void AddMessage()
+        public void AddMessage(Message message)
         {
-            Message message = new Message();
             messages.Add(message);
+            size += message.Size();
         }
 
-        public void AddMessage(byte[] bytes)
-        {
-            Message message = new Message(bytes);
-            messages.Add(message);
-        }
-
-        public void AddMessage(short seqNum, short entityId, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
-        {
-            Message message = new Message(seqNum, entityId, actionType, actionDescriptor, x, y, r, xd, yd);
-            messages.Add(message);
-        }
-
-        public Message ReadMessage(int index)
+        public Message GetMessage(int index)
         {
             return messages[index];
         }
 
-        public Message ReadMessage()
+        public Message GetMessage()
         {
-            return ReadMessage(0);
+            return GetMessage(0);
+        }
+
+        public List<Message> GetMessages()
+        {
+            return messages;
         }
 
         // Returns the number of messages currently in packet.
@@ -126,31 +108,31 @@ namespace Assets.Server
         // Returns the packet messages as single byte array
         public byte[] Serialize()
         {
-            payload = new byte[Message.SCHEMA_SIZE * this.Length()];
+            payload = new byte[size];
             int cursor = 0;
             // Iterate through all messages and add their serialization to the buffer
             foreach (Message message in messages)
             {
-                Array.Copy(message.Serialize(), 0, payload, cursor, Message.SCHEMA_SIZE);
-                cursor += Message.SCHEMA_SIZE;
+                Array.Copy(message.Serialize(), 0, payload, cursor, message.Size());
+                cursor += message.Size();
             }
 
             return payload;
         }
 
         // Deserialize byte array into list of messages
-        public void Deserialize(byte[] bytes)
+        public List<Message> Deserialize(byte[] bytes)
         {
             int cursor = 0;
             int length = bytes.Length;
-            byte[] message = new byte[Message.SCHEMA_SIZE];
             while (cursor < length)
             {
-                
-                Array.Copy(bytes, cursor, message, 0, Message.SCHEMA_SIZE);
+                Message message = Message.Deserialize(bytes, cursor);
                 AddMessage(message);
-                cursor += Message.SCHEMA_SIZE;
+                cursor += message.Size();
             }
+
+            return messages;
         }
 
         public void Print()
@@ -290,6 +272,7 @@ namespace Assets.Server
                 {
                     messages = null;
                     payload = null;
+                    size = 0;
                 }
 
                 disposed = true;

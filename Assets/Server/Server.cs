@@ -9,8 +9,7 @@ public class Server : MonoBehaviour
     void Start()
     {
         Debug.Log("Starting server...");
-        UDPServer server = new UDPServer();
-        server.Init();
+        UDPServer.getInstance().Init();
     }
 
     // Update is called once per frame
