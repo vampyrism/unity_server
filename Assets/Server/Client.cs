@@ -19,18 +19,33 @@ namespace Assets.Server
         public UInt16 RemoteSeqNum { get; private set; }
         public UInt16 LocalSeqNum { get; private set; }
 
-        public Player player { get; private set; }
+        public GameObject Player { get; private set; }
 
         public Client(IPEndPoint endpoint)
         {
+            Debug.Log("Creating player entity!");
             this.Endpoint = endpoint;
             this.MessageQueue = new Queue<Message>();
             this.PacketQueue = new List<UDPPacket>();
             this.RemoteSeqNum = 0;
             this.LocalSeqNum = 0;
 
-            this.player = (Player) PrefabUtility.InstantiatePrefab(Resources.Load("prefabs/Player.prefab"));
-            this.player.Move(1f, 1f);
+            Server.instance.TaskQueue.Enqueue(new Action(() => { this.Init(); }));
+        }
+
+        /// <summary>
+        /// Initializes Player, must be run on the main thread
+        /// </summary>
+        public void Init()
+        {
+            try
+            {
+                this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         }
 
         public UDPPacket NextPacket()

@@ -52,6 +52,15 @@ namespace Assets.Server
             return this.size + size < SAFE_PAYLOAD; 
         }
 
+        /// <summary>
+        /// Returns size of unused space in <c>UDPPacket</c>
+        /// </summary>
+        /// <returns>Space left in packet</returns>
+        public int SizeLeft()
+        {
+            return SAFE_PAYLOAD - this.size;
+        }
+
         public void AddMessage(Message message)
         {
             messages.Add(message);

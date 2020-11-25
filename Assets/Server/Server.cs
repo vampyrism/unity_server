@@ -1,16 +1,24 @@
 ﻿using Assets.Server;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Assets.Server
 {
     public class Server : MonoBehaviour
     {
+        public static Server instance;
+
+        public Queue<Action> TaskQueue { get; private set; }
+
         // Start is called before the first frame update
         void Start()
         {
             Debug.Log("Starting server...");
+            this.TaskQueue = new Queue<Action>();
+            Server.instance = this;
             UDPServer.getInstance().Init(this);
         }
 
@@ -22,6 +30,11 @@ namespace Assets.Server
 
         void FixedUpdate()
         {
+            while(this.TaskQueue.Count > 0)
+            {
+                this.TaskQueue.Dequeue().Invoke();
+            }
+
             UDPServer.getInstance().FixedUpdate();
         }
 
@@ -32,6 +45,11 @@ namespace Assets.Server
             {
                 message.Accept(v);
             }
+        }
+
+        public void NewClient(Client c)
+        {
+            
         }
     }
 }

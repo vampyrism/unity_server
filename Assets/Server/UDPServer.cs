@@ -23,7 +23,7 @@ namespace Assets.Server
         IPEndPoint serverEndpoint;
         UdpClient socket;
 
-        Dictionary<(String, int), IPEndPoint> clients;
+        Dictionary<(String, int), Client> clients;
 
         UInt16 remoteSeqNum = 0;
         UInt16 localSeqNum = 0;
@@ -50,7 +50,7 @@ namespace Assets.Server
         {
             this.server = server;
             this.socket = new UdpClient(serverEndpoint);
-            this.clients = new Dictionary<(string, int), IPEndPoint>();
+            this.clients = new Dictionary<(string, int), Client>();
             Debug.Log("Started socket on port " + 9000);
 
             // Server main thread
@@ -73,8 +73,13 @@ namespace Assets.Server
 
                         if (!this.clients.ContainsKey((ip, port)))
                         {
-                            this.clients.Add((ip, port), new IPEndPoint(this.serverEndpoint.Address, port)); // TODO: Refactor to client.
+                            this.clients.Add((ip, port), new Client(new IPEndPoint(this.serverEndpoint.Address, port))); // TODO: Refactor to client.
                         }
+
+                        // Initialize client
+                        Client c;
+                        this.clients.TryGetValue((ip, port), out c);
+                        this.server.NewClient(c);
 
                         continue;
                     }
@@ -101,11 +106,16 @@ namespace Assets.Server
             }
         }
 
+        public void SendMessage(Message m)
+        {
+
+        }
+
         public void FixedUpdate()
         {
             try
             {
-                foreach (IPEndPoint endpoint in this.clients.Values.ToArray())
+                foreach (Client c in this.clients.Values.ToArray())
                 {
                     int len = 508;
                     byte[] res = new byte[len];
@@ -115,7 +125,7 @@ namespace Assets.Server
                     //packet.AddMessage(m);
                     //res = packet.Serialize();
 
-                    this.socket.Send(res, res.Length, endpoint);
+                    this.socket.Send(res, res.Length, c.Endpoint);
                     this.localSeqNum += 1;
                 }
             }
