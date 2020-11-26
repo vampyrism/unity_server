@@ -7,4 +7,12 @@ using UnityEngine;
 
 public abstract class Entity : MonoBehaviour
 {
+    public static UInt32 MaxID { get; private set; } = 0;
+    public UInt32 ID { get; private set; }
+
+    public virtual void Start()
+    {
+        this.ID = Entity.MaxID;
+        Entity.MaxID += 1;
+    }
 }

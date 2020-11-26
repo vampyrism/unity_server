@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -59,8 +60,12 @@ namespace Assets.Server
                 while (true)
                 {
                     byte[] data = new byte[2048];
-                    
-                    data = this.socket.Receive(ref this.serverEndpoint);
+
+                    try
+                    {
+                        data = this.socket.Receive(ref this.serverEndpoint);
+                    } catch(System.Net.Sockets.SocketException e) { continue; }
+
                     Debug.Log("Received packet");
                     String ip = this.serverEndpoint.Address.ToString();
                     int port = this.serverEndpoint.Port;
@@ -84,7 +89,14 @@ namespace Assets.Server
                         continue;
                     }
 
-                    HandleRawPacket(data, ip, port);
+                    try
+                    {
+                        HandleRawPacket(data, ip, port);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning(e);
+                    }
                 }
             });
         }
