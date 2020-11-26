@@ -17,14 +17,15 @@ namespace Assets.Server
          * 4        | uint32    | Entity ID
          */
 
-        public enum Type
+        public enum Type : UInt16
         {
             PLAYER,
             ENEMY,
             WEAPON_CROSSBOW
         }
 
-        public enum Action {
+        public enum Action : byte
+        {
             CREATE,
             DELETE
         }
@@ -48,7 +49,7 @@ namespace Assets.Server
             Array.Copy(bytes, cursor, message, 0, MESSAGE_SIZE);
         }
 
-        public EntityUpdateMessage(UInt16 type, byte action, UInt32 id)
+        public EntityUpdateMessage(Type type, Action action, UInt32 id)
         {
             message[TYPE_ID] = ENTITY_UPDATE;
             SetEntityType(type);
@@ -58,24 +59,24 @@ namespace Assets.Server
 
 
         // Setters
-        public void SetEntityType(UInt16 type)
+        public void SetEntityType(Type type)
         {
             if(!Enum.IsDefined(typeof(Type), type))
             {
                 throw new ArgumentOutOfRangeException("Entity type " + type + " does not exist");
             }
 
-            Array.Copy(BitConverter.GetBytes(type), 0, message, ENTITY_TYPE, 2);
+            Array.Copy(BitConverter.GetBytes((UInt16) type), 0, message, ENTITY_TYPE, 2);
         }
 
-        public void SetEntityAction(byte action)
+        public void SetEntityAction(Action action)
         {
             if (!Enum.IsDefined(typeof(Action), action))
             {
                 throw new ArgumentOutOfRangeException("Entity action " + action + " is not implemented");
             }
 
-            Array.Copy(BitConverter.GetBytes(action), 0, message, ENTITY_ACTION, 1);
+            Array.Copy(BitConverter.GetBytes((byte) action), 0, message, ENTITY_ACTION, 1);
         }
 
         public void SetEntityID(UInt32 id)

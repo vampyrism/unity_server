@@ -86,6 +86,11 @@ namespace Assets.Server
                         this.clients.TryGetValue((ip, port), out c);
                         this.server.NewClient(c);
 
+                        EntityUpdateMessage NewClient = new EntityUpdateMessage(EntityUpdateMessage.Type.PLAYER, EntityUpdateMessage.Action.CREATE, (c.Player.GetComponent(typeof(Player)) as Player).ID);
+                        BroadcastMessage(NewClient);
+                        
+                        MovementMessage ClientMovement = new MovementMessage(0, 1, 0, 0, 0, 0, 0, 0, 0);
+                        BroadcastMessage(ClientMovement);
                         continue;
                     }
 
@@ -117,10 +122,23 @@ namespace Assets.Server
                 Debug.LogError("Exception when handling messages: " + e.Message);
             }
         }
+        
 
-        public void SendMessage(Message m)
+        /// <summary>
+        /// Adds <c>Message</c> to all Clients message queue
+        /// </summary>
+        /// <param name="m"></param>
+        public void BroadcastMessage(Message m)
         {
-
+            foreach(var cursor in this.clients)
+            {
+                Client cursorValue = cursor.Value;
+                cursorValue.MessageQueue.Enqueue(m);
+/*              UDPPacket packetToSend = new UDPPacket();
+                packetToSend.AddMessage(m);
+                byte[] res = packetToSend.Serialize();
+                this.socket.Send(res, res.Length, cursorValue.Endpoint);*/
+            }
         }
 
         public void FixedUpdate()
