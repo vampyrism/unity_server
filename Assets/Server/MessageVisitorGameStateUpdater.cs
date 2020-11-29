@@ -11,7 +11,8 @@ namespace Assets.Server
     {
         public void Visit(MovementMessage m)
         {
-            Debug.Log(m);
+            //Debug.Log(m);
+            UDPServer.getInstance().BroadcastMessage(m);
         }
 
         public void Visit(AttackMessage m)

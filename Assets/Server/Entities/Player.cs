@@ -14,7 +14,6 @@ public class Player : Character
     // Variables regarding movement
     private float moveLimiter = 0.7f;
     [SerializeField] private float runSpeed = 1.0f;
-    [SerializeField] private UInt32 entity_id; 
 
     public float x { get; private set; } = 0.0f;
     public float y { get; private set; } = 0.0f;
@@ -24,10 +23,9 @@ public class Player : Character
     private float timestampForNextAction;
 
     // Start is called before the first frame update
-    public override void Start()
+    public void Start()
     {
-        base.Start();
-        this.entity_id = base.ID; // TODO: Debugging, remove.
+        Debug.Log("Started player gameobject");
         body = GetComponent<Rigidbody2D>();
 
         currentHealth = maxHealth;
