@@ -13,6 +13,7 @@ namespace Assets.Server
         public static Server instance;
         // TODO: Should be a ConcurrentQueue
         public ConcurrentQueue<Action> TaskQueue { get; private set; }
+        public ConcurrentDictionary<UInt32, Entity> Entities { get; private set; } = new ConcurrentDictionary<uint, Entity>();
 
         // Start is called before the first frame update
         void Start()

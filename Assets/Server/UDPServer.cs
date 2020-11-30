@@ -59,48 +59,56 @@ namespace Assets.Server
             {
                 while (true)
                 {
-                    byte[] data = new byte[2048];
-
                     try
                     {
-                        data = this.socket.Receive(ref this.serverEndpoint);
-                    } catch(System.Net.Sockets.SocketException e) { continue; }
+                        byte[] data = new byte[2048];
 
-                    Debug.Log("Received packet");
-                    String ip = this.serverEndpoint.Address.ToString();
-                    int port = this.serverEndpoint.Port;
-
-                    if (data.SequenceEqual(ASCIIEncoding.ASCII.GetBytes("Knock, knock")))
-                    {
-                        Debug.Log("New client connecting!");
-                        byte[] res = ASCIIEncoding.ASCII.GetBytes("VAMPIRES!");
-                        this.socket.Send(res, res.Length, this.serverEndpoint);
-
-                        if (!this.clients.ContainsKey((ip, port)))
+                        try
                         {
-                            this.clients.Add((ip, port), new Client(new IPEndPoint(this.serverEndpoint.Address, port))); // TODO: Refactor to client.
+                            data = this.socket.Receive(ref this.serverEndpoint);
+                        }
+                        catch (System.Net.Sockets.SocketException e) { continue; }
+
+                        //Debug.Log("Received packet");
+                        String ip = this.serverEndpoint.Address.ToString();
+                        int port = this.serverEndpoint.Port;
+
+                        if (data.SequenceEqual(ASCIIEncoding.ASCII.GetBytes("Knock, knock")))
+                        {
+                            Debug.Log("New client connecting!");
+                            byte[] res = ASCIIEncoding.ASCII.GetBytes("VAMPIRES!");
+                            this.socket.Send(res, res.Length, this.serverEndpoint);
+
+                            if (!this.clients.ContainsKey((ip, port)))
+                            {
+                                this.clients.Add((ip, port), new Client(new IPEndPoint(this.serverEndpoint.Address, port))); // TODO: Refactor to client.
+
+                                // Initialize client globally
+                                Client c;
+                                this.clients.TryGetValue((ip, port), out c);
+                                this.server.NewClient(c);
+                            } 
+                            else
+                            {
+                                // Initiate client locally since they are reconnecting
+                            }
+
+                            continue;
                         }
 
-                        // Initialize client
-                        Client c;
-                        this.clients.TryGetValue((ip, port), out c);
-                        this.server.NewClient(c);
-
-                        EntityUpdateMessage NewClient = new EntityUpdateMessage(EntityUpdateMessage.Type.PLAYER, EntityUpdateMessage.Action.CREATE, (c.Player.GetComponent(typeof(Player)) as Player).ID);
-                        BroadcastMessage(NewClient);
-                        
-                        MovementMessage ClientMovement = new MovementMessage(0, 1, 0, 0, 0, 0, 0, 0, 0);
-                        BroadcastMessage(ClientMovement);
-                        continue;
+                        try
+                        {
+                            HandleRawPacket(data, ip, port);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogWarning(e);
+                            continue;
+                        }
                     }
-
-                    try
+                    catch(Exception e)
                     {
-                        HandleRawPacket(data, ip, port);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogWarning(e);
+                        Debug.LogError(e);
                     }
                 }
             });
@@ -155,7 +163,9 @@ namespace Assets.Server
                     //packet.AddMessage(m);
                     //res = packet.Serialize();
 
-                    this.socket.Send(res, res.Length, c.Endpoint);
+                    UDPPacket p = c.NextPacket();
+
+                    this.socket.Send(p.Serialize(), p.Size, c.Endpoint);
                     this.localSeqNum += 1;
                 }
             }

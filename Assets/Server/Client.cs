@@ -41,6 +41,26 @@ namespace Assets.Server
             try
             {
                 this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
+                Server.instance.Entities.TryAdd(this.Player.GetComponent<Player>().ID, this.Player.GetComponent<Player>());
+
+                Debug.Log("Entity id is " + (this.Player.GetComponent<Player>()).ID);
+
+                EntityUpdateMessage NewClient = new EntityUpdateMessage(
+                    EntityUpdateMessage.Type.PLAYER,
+                    EntityUpdateMessage.Action.CREATE,
+                    this.Player.GetComponent<Player>().ID
+                    );
+                UDPServer.getInstance().BroadcastMessage(NewClient);
+
+                MovementMessage ClientMovement = new MovementMessage(0, this.Player.GetComponent<Player>().ID, 0, 0, 0, 0, 0, 0, 0);
+                UDPServer.getInstance().BroadcastMessage(ClientMovement);
+
+                EntityUpdateMessage control = new EntityUpdateMessage(
+                    EntityUpdateMessage.Type.PLAYER,
+                    EntityUpdateMessage.Action.CONTROL,
+                    (this.Player.GetComponent(typeof(Player)) as Player).ID
+                    );
+                this.SendMessage(control);
             }
             catch (Exception e)
             {
@@ -50,7 +70,7 @@ namespace Assets.Server
 
         public UDPPacket NextPacket()
         {
-            return new UDPPacket();
+            return BuildPacket(new UDPPacket());
         }
 
         /// <summary>
