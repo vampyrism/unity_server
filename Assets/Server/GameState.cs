@@ -11,8 +11,6 @@ namespace Assets.Server
 {
     public sealed class GameState 
     {
-        // Singleton
-
         public static readonly GameState instance = new GameState();
 
         public static GameState GetInstance()
@@ -25,13 +23,16 @@ namespace Assets.Server
         // Keep track of all entities (players, items, ...)
         private Dictionary<UInt32, Entity> entities;
 
+        // When the game started, to keep track of day/night
+        private Int32 startTime;
+
         private GameState()
         {
             entities = new Dictionary<UInt32, Entity>();
         }
 
-        // The implementation is as of now theoretical so the functions 
-        // consists of mainly psuedo kod.
+        // The implementation is as of now theoretical it 
+        // consists of mainly psuedo-code and sample methods.
 
         // Game Updates
     
@@ -40,11 +41,12 @@ namespace Assets.Server
             entities.Add(id, entity);
         }
 
-        public void CreatePlayer(Client client)
+        public UInt32 CreatePlayer()
         {
             Player newPlayer = GameObject.Instantiate(Resources.Load("Player") as GameObject);
-            clients.Add(newPlayer.entity_id, client);
-            AddEntity(newPlayer.entity_id, newPlayer);
+            clients.Add(newPlayer.ID, client);
+            AddEntity(newPlayer.ID, newPlayer);
+            return newPlayer.ID;
         }
 
         public void PlayerMove(UInt32 id, float x, float y)
