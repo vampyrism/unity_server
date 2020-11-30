@@ -41,6 +41,7 @@ namespace Assets.Server
             try
             {
                 this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
+                Server.instance.Entities.TryAdd(this.Player.GetComponent<Player>().ID, this.Player.GetComponent<Player>());
 
                 Debug.Log("Entity id is " + (this.Player.GetComponent<Player>()).ID);
 

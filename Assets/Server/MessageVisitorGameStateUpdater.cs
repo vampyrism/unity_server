@@ -13,6 +13,12 @@ namespace Assets.Server
         {
             //Debug.Log(m);
             UDPServer.getInstance().BroadcastMessage(m);
+            Server.instance.TaskQueue.Enqueue(new Action(() =>
+            {
+                Debug.Log("Moving entity to " + m.GetXCoordinate() + " " + m.GetYCoordinate() + " " + m.GetXVelocity() + " " + m.GetYVelocity());
+                Server.instance.Entities.TryGetValue(m.GetEntityId(), out Entity e);
+                e.DirectMove(m.GetXCoordinate(), m.GetYCoordinate(), m.GetXVelocity(), m.GetYVelocity());
+            }));
         }
 
         public void Visit(AttackMessage m)

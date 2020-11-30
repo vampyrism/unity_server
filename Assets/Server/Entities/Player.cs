@@ -50,7 +50,13 @@ public class Player : Character
             vertical *= moveLimiter;
         }
 
-        body.velocity = new Vector2(horizontal * runSpeed, vertical * runSpeed);
+        body.AddForce(new Vector2(horizontal * runSpeed, vertical * runSpeed), ForceMode2D.Impulse);
+    }
+
+    public override void DirectMove(float x, float y, float dx, float dy)
+    {
+        this.transform.position = new Vector3(x, y);
+        body.AddForce(new Vector2(dx, dy), ForceMode2D.Impulse);
     }
 
     public void GrabObject()
