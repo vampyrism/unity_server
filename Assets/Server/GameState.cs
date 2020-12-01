@@ -43,25 +43,22 @@ namespace Assets.Server
 
         public UInt32 CreatePlayer()
         {
-            Player newPlayer = GameObject.Instantiate(Resources.Load("Player") as GameObject);
-            clients.Add(newPlayer.ID, client);
-            AddEntity(newPlayer.ID, newPlayer);
-            return newPlayer.ID;
+            Player player = GameObject.Instantiate(Resources.Load("Player") as GameObject).GetComponent<Player>();
+            AddEntity(player.ID, player);
+            return player.ID;
         }
 
-        public void PlayerMove(UInt32 id, float x, float y)
+        public void PlayerMove(UInt32 id, float x, float y, float dx, float dy)
         {
-            Player player;
+            Entity player;
             entities.TryGetValue(id, out player);
-            // player.x = x
-            // player.y = y
-            // ...
+            player.DirectMove(x, y, dx, dy);
         }
 
         public void PlayerAttack(UInt32 playerId, UInt32 targetId)
         {
-            Player player;
-            Player target;
+            Entity player;
+            Entity target;
             entities.TryGetValue(playerId, out player);
             entities.TryGetValue(targetId, out target);
             // target.takeDamage(...)
