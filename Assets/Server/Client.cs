@@ -40,25 +40,26 @@ namespace Assets.Server
         {
             try
             {
-                this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
-                Server.instance.Entities.TryAdd(this.Player.GetComponent<Player>().ID, this.Player.GetComponent<Player>());
+                //this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
+                UInt32 playerID = GameState.instance.CreatePlayer();
+                //Server.instance.Entities.TryAdd(this.Player.GetComponent<Player>().ID, this.Player.GetComponent<Player>());
 
-                Debug.Log("Entity id is " + (this.Player.GetComponent<Player>()).ID);
+                Debug.Log("Entity id is " + playerID);
 
                 EntityUpdateMessage NewClient = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.PLAYER,
                     EntityUpdateMessage.Action.CREATE,
-                    this.Player.GetComponent<Player>().ID
+                    playerID
                     );
                 UDPServer.getInstance().BroadcastMessage(NewClient);
 
-                MovementMessage ClientMovement = new MovementMessage(0, this.Player.GetComponent<Player>().ID, 0, 0, 0, 0, 0, 0, 0);
+                MovementMessage ClientMovement = new MovementMessage(0, playerID, 0, 0, 0, 0, 0, 0, 0);
                 UDPServer.getInstance().BroadcastMessage(ClientMovement);
 
                 EntityUpdateMessage control = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.PLAYER,
                     EntityUpdateMessage.Action.CONTROL,
-                    (this.Player.GetComponent(typeof(Player)) as Player).ID
+                    playerID
                     );
                 this.SendMessage(control);
             }
