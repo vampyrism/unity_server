@@ -14,10 +14,12 @@ namespace Assets.Server
         // TODO: Should be a ConcurrentQueue
         public ConcurrentQueue<Action> TaskQueue { get; private set; }
         public ConcurrentDictionary<UInt32, Entity> Entities { get; private set; } = new ConcurrentDictionary<uint, Entity>();
+        [SerializeField] private Transform tileMap;
 
         // Start is called before the first frame update
         void Start()
         {
+            Instantiate(tileMap, new Vector3(0f, 50f), Quaternion.identity);
             Debug.Log("Starting server...");
             this.TaskQueue = new ConcurrentQueue<Action>();
             Server.instance = this;
