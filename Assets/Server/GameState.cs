@@ -81,7 +81,13 @@ namespace Assets.Server
         /// <returns>Id of the created player.</returns>
         public UInt32 CreatePlayer()
         {
+            return this.CreatePlayer(null);
+        }
+
+        public UInt32 CreatePlayer(Client client)
+        {
             Player player = GameObject.Instantiate(Resources.Load("Player") as GameObject).GetComponent<Player>();
+            player.Client = client;
             return AddEntity(player);
         }
 
@@ -96,7 +102,16 @@ namespace Assets.Server
         /// <param name="dy">Y velocity.</param>
         public void PlayerMove(UInt32 id, UInt16 seq, float x, float y, float dx, float dy)
         {
-            Entity player = GetEntity(id);
+            Player player = (Player) GetEntity(id);
+
+            if(Vector2.Distance(player.transform.position, new Vector2(x,y)) > 2)
+            {
+                Debug.Log("Player " + id 
+                    + " moved too fast (distance=" + Vector2.Distance(player.transform.position, new Vector2(x, y)));
+                player.ForceUpdateClientPosition();
+                return;
+            }
+
             player.DirectMove(x, y, dx, dy);
             /*if (seq > player.LastUpdate)
             {
