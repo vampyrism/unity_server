@@ -89,6 +89,18 @@ namespace Assets.Server
         }
 
         /// <summary>
+        /// Create <c>Enemy</c> entity and add it to the game state.
+        /// </summary>
+        /// <returns>Id of the created enemy.</returns>
+        public UInt32 CreateEnemy() {
+            return this.CreateEnemy(0f, 0f);
+        }
+        public UInt32 CreateEnemy(float x, float y) {
+            Enemy enemy = GameObject.Instantiate(Resources.Load("Enemy") as GameObject, new Vector3(x, y), Quaternion.identity).GetComponent<Enemy>();
+            return AddEntity(enemy);
+        }
+
+        /// <summary>
         /// Move <c>Player</c> with id by coordinates and velocity.
         /// </summary>
         /// <param name="id">Id of <c>Player</c> entity.</param>

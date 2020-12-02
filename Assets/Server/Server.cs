@@ -14,13 +14,14 @@ namespace Assets.Server
         // TODO: Should be a ConcurrentQueue
         public ConcurrentQueue<Action> TaskQueue { get; private set; }
         public ConcurrentDictionary<UInt32, Entity> Entities { get; private set; } = new ConcurrentDictionary<uint, Entity>();
-        [SerializeField] private Transform tileMap;
+        
 
         // Start is called before the first frame update
         void Start()
         {
-            Instantiate(tileMap, new Vector3(0f, 100f), Quaternion.identity);
             Debug.Log("Starting server...");
+            //Runs the GameLoader script
+            (Resources.Load("GameLoader") as GameObject).GetComponent<GameLoader>().Init();
             this.TaskQueue = new ConcurrentQueue<Action>();
             Server.instance = this;
             UDPServer.getInstance().Init(this);
