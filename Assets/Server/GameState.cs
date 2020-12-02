@@ -81,12 +81,21 @@ namespace Assets.Server
         /// <returns>Id of the created player.</returns>
         public UInt32 CreatePlayer()
         {
-            return this.CreatePlayer(null);
+            return this.CreatePlayer(null, 0f, 0f);
         }
 
         public UInt32 CreatePlayer(Client client)
         {
-            Player player = GameObject.Instantiate(Resources.Load("Player") as GameObject).GetComponent<Player>();
+            return this.CreatePlayer(client, 0f, 0f);
+        }
+
+        public UInt32 CreatePlayer(float x, float y)
+        {
+            return this.CreatePlayer(null, x, y);
+        }
+
+        public UInt32 CreatePlayer(Client client, float x, float y) {
+            Player player = GameObject.Instantiate(Resources.Load("Player") as GameObject, new Vector3(x, y), Quaternion.identity).GetComponent<Player>();
             player.Client = client;
             return AddEntity(player);
         }

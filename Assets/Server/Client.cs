@@ -59,7 +59,7 @@ namespace Assets.Server
                 }
 
                 //this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
-                UInt32 playerID = GameState.instance.CreatePlayer(this);
+                UInt32 playerID = GameState.instance.CreatePlayer(this, 50, 50);
                 //Server.instance.Entities.TryAdd(this.Player.GetComponent<Player>().ID, this.Player.GetComponent<Player>());
 
                 Debug.Log("Entity id is " + playerID);

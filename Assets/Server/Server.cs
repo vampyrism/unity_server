@@ -19,7 +19,7 @@ namespace Assets.Server
         // Start is called before the first frame update
         void Start()
         {
-            Instantiate(tileMap, new Vector3(0f, 50f), Quaternion.identity);
+            Instantiate(tileMap, new Vector3(0f, 100f), Quaternion.identity);
             Debug.Log("Starting server...");
             this.TaskQueue = new ConcurrentQueue<Action>();
             Server.instance = this;
