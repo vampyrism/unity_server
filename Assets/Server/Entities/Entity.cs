@@ -10,6 +10,8 @@ public abstract class Entity : MonoBehaviour
     public static UInt32 MaxID { get; private set; } = 1;
     public UInt32 ID { get; private set; }
 
+    public UInt16 LastUpdate { get; set; } = 0;
+
     public virtual void Awake()
     {
         this.ID = Entity.MaxID;

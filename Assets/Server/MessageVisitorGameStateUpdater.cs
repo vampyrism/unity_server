@@ -12,20 +12,22 @@ namespace Assets.Server
         public void Visit(MovementMessage m)
         {
             //Debug.Log(m);
+            // TODO: Make sure that player can only control their character!
             UDPServer.getInstance().BroadcastMessage(m);
             Server.instance.TaskQueue.Enqueue(new Action(() =>
             {
-                Debug.Log("Moving entity " + m.GetEntityId() + " to " + 
+                /*Debug.Log("Moving entity " + m.GetEntityId() + " to " + 
                             m.GetXCoordinate() + " " + 
                             m.GetYCoordinate() + " " + 
                             m.GetXVelocity() + " " + 
-                            m.GetYVelocity());
+                            m.GetYVelocity());*/
 
-                GameState.instance.PlayerMove(  m.GetEntityId(), 
-                                                m.GetXCoordinate(), 
-                                                m.GetYCoordinate(), 
-                                                m.GetXVelocity(), 
-                                                m.GetYVelocity());
+                GameState.instance.PlayerMove(m.GetEntityId(),
+                                              m.GetSequenceNumber(),
+                                              m.GetXCoordinate(), 
+                                              m.GetYCoordinate(), 
+                                              m.GetXVelocity(), 
+                                              m.GetYVelocity());
             }));
         }
 
