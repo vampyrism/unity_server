@@ -81,10 +81,22 @@ namespace Assets.Server
         /// <returns>Id of the created player.</returns>
         public UInt32 CreatePlayer()
         {
-            return this.CreatePlayer(0f, 0f);
+            return this.CreatePlayer(null, 0f, 0f);
         }
-        public UInt32 CreatePlayer(float x, float y) {
+
+        public UInt32 CreatePlayer(Client client)
+        {
+            return this.CreatePlayer(client, 0f, 0f);
+        }
+
+        public UInt32 CreatePlayer(float x, float y)
+        {
+            return this.CreatePlayer(null, x, y);
+        }
+
+        public UInt32 CreatePlayer(Client client, float x, float y) {
             Player player = GameObject.Instantiate(Resources.Load("Player") as GameObject, new Vector3(x, y), Quaternion.identity).GetComponent<Player>();
+            player.Client = client;
             return AddEntity(player);
         }
 
@@ -111,7 +123,16 @@ namespace Assets.Server
         /// <param name="dy">Y velocity.</param>
         public void PlayerMove(UInt32 id, UInt16 seq, float x, float y, float dx, float dy)
         {
-            Entity player = GetEntity(id);
+            Player player = (Player) GetEntity(id);
+
+            if(Vector2.Distance(player.transform.position, new Vector2(x,y)) > 2)
+            {
+                Debug.Log("Player " + id 
+                    + " moved too fast (distance=" + Vector2.Distance(player.transform.position, new Vector2(x, y)));
+                player.ForceUpdateClientPosition();
+                return;
+            }
+
             player.DirectMove(x, y, dx, dy);
             /*if (seq > player.LastUpdate)
             {
