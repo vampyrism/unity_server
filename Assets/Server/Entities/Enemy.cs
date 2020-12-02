@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Server;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -72,7 +73,13 @@ public class Enemy : Character
     }
 
     public void HandleMovement() {
-        if ((Vector2) transform.position == oldPosition) {
+        if(Vector2.Distance((Vector2) transform.position, this.currentTarget.position) < 1)
+        {
+            body.velocity = new Vector2(0f, 0f);
+            return;
+        }
+
+        if (Vector2.Distance((Vector2) transform.position, oldPosition) < 0.05) {
             stuckCount += 1;
         } else {
             stuckCount = 0;
@@ -80,7 +87,7 @@ public class Enemy : Character
 
         Vector3 currentPathPosition = pathVectorList[currentPathIndex];
 
-        if (stuckCount > 4) {
+        if (stuckCount > 8) {
             StartCoroutine(LerpPosition((Vector2)currentPathPosition, Vector3.Distance(transform.position, currentPathPosition)/runSpeed));
                 
             stuckCount = 0;
@@ -169,5 +176,32 @@ public class Enemy : Character
             yield return null;
         }
         transform.position = targetPosition;
+    }
+
+    private void FixedUpdate()
+    {
+        if (transform.hasChanged)
+        {
+            transform.hasChanged = false;
+
+            base.X = body.position.x;
+            base.Y = body.position.y;
+            base.DX = body.velocity.x;
+            base.DY = body.velocity.y;
+
+            Assets.Server.MovementMessage m = new Assets.Server.MovementMessage(
+            0,
+            this.ID,
+            0,
+            0,
+            base.X,
+            base.Y,
+            base.Rotation,
+            base.DX,
+            base.DY
+            );
+
+            UDPServer.getInstance().BroadcastMessage(m);
+        }
     }
 }

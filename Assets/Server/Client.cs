@@ -51,7 +51,21 @@ namespace Assets.Server
                             EntityUpdateMessage.Action.CREATE,
                             kv.Key
                             );
-                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.x, e.y, 0, e.vx, e.vy);
+                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+
+                        this.SendMessage(entity);
+                        this.SendMessage(move);
+                    }
+
+                    if (kv.Value.GetType() == typeof(Enemy)) // TODO: Create all entities, not just player
+                    {
+                        Enemy e = (Enemy)kv.Value;
+                        EntityUpdateMessage entity = new EntityUpdateMessage(
+                            EntityUpdateMessage.Type.ENEMY,
+                            EntityUpdateMessage.Action.CREATE,
+                            kv.Key
+                            );
+                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
                         this.SendMessage(entity);
                         this.SendMessage(move);

@@ -16,11 +16,6 @@ public class Player : Character
     private float moveLimiter = 0.7f;
     [SerializeField] private float runSpeed = 1.0f;
 
-    public float x { get; private set; } = 0.0f;
-    public float y { get; private set; } = 0.0f;
-    public float vx { get; private set; } = 0.0f;
-    public float vy { get; private set; } = 0.0f;
-
     private float timestampForNextAction;
 
     // Networking
@@ -38,10 +33,10 @@ public class Player : Character
     // Update is called once per frame
     void Update()
     {
-        x = body.position.x;
-        y = body.position.y;
-        vx = body.velocity.x;
-        vy = body.velocity.y;
+        base.X = body.position.x;
+        base.Y = body.position.y;
+        base.DX = body.velocity.x;
+        base.DY = body.velocity.y;
     }
 
     public void Move(float horizontal, float vertical)
@@ -59,7 +54,7 @@ public class Player : Character
 
     public override void DirectMove(float x, float y, float dx, float dy)
     {
-        this.transform.position = new Vector3(x, y);
+        this.transform.position = new Vector2(x, y);
         body.AddForce(new Vector2(dx, dy), ForceMode2D.Impulse);
     }
 

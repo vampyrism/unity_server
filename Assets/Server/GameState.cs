@@ -128,6 +128,7 @@ namespace Assets.Server
             if(Vector2.Distance(player.transform.position, new Vector2(x,y)) > 2)
             {
                 Debug.Log("Player " + id 
+                    + " (server pid=" + player.ID + " "
                     + " moved too fast (distance=" + Vector2.Distance(player.transform.position, new Vector2(x, y)));
                 player.ForceUpdateClientPosition();
                 return;
