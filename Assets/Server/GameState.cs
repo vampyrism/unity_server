@@ -14,14 +14,14 @@ namespace Assets.Server
         public static readonly GameState instance = new GameState();
 
         // Keep track of all entities (players, items, etc.)
-        private Dictionary<UInt32, Entity> entities;
+        public Dictionary<UInt32, Entity> Entities { get; private set; }
 
         // Time left of current day/night cycle
         private Int32 timeLeft;
 
         private GameState()
         {
-            entities = new Dictionary<UInt32, Entity>();
+            this.Entities = new Dictionary<UInt32, Entity>();
         }
 
 
@@ -37,7 +37,7 @@ namespace Assets.Server
         /// <returns>Id of the added entity.</returns>
         public UInt32 AddEntity(Entity entity)
         {
-            entities.Add(entity.ID, entity);
+            Entities.Add(entity.ID, entity);
             return entity.ID;
         }
 
@@ -51,7 +51,7 @@ namespace Assets.Server
             Entity entity;
             try
             {
-                entity = entities[id];
+                entity = Entities[id];
             }
             catch (KeyNotFoundException)
             {
@@ -70,7 +70,7 @@ namespace Assets.Server
         /// <returns>True if exists, false otherwise.</returns>
         public bool ContainsEntity(UInt32 id)
         {
-            return entities.ContainsKey(id);
+            return Entities.ContainsKey(id);
         }
 
         // Game Updates
@@ -89,14 +89,25 @@ namespace Assets.Server
         /// Move <c>Player</c> with id by coordinates and velocity.
         /// </summary>
         /// <param name="id">Id of <c>Player</c> entity.</param>
+        /// <param name="seq">Sequence number</param>
         /// <param name="x">X coordinate.</param>
         /// <param name="y">Y coordinate.</param>
         /// <param name="dx">X velocity.</param>
         /// <param name="dy">Y velocity.</param>
-        public void PlayerMove(UInt32 id, float x, float y, float dx, float dy)
+        public void PlayerMove(UInt32 id, UInt16 seq, float x, float y, float dx, float dy)
         {
             Entity player = GetEntity(id);
             player.DirectMove(x, y, dx, dy);
+            /*if (seq > player.LastUpdate)
+            {
+                player.DirectMove(x, y, dx, dy);
+                player.LastUpdate = seq;
+            } 
+            else if (Math.Abs(seq - player.LastUpdate) > UInt16.MaxValue / 4)
+            {
+                player.DirectMove(x, y, dx, dy);
+                player.LastUpdate = seq;
+            }*/
         }
 
         /// <summary>
