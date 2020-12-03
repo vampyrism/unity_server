@@ -17,17 +17,19 @@ namespace Assets.Server
         public Dictionary<UInt32, Entity> Entities { get; private set; }
 
         // Time left of current day/night cycle
-        private Int32 timeLeft;
+        private DayNightCycle dayNightCycle;
 
         private GameState()
         {
             this.Entities = new Dictionary<UInt32, Entity>();
+            this.dayNightCycle = new DayNightCycle(40, 20);
         }
 
 
         public void FixedUpdate() 
         {
             // Update game time
+            dayNightCycle.FixedUpdate();
         }
 
         /// <summary>

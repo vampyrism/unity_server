@@ -45,6 +45,7 @@ namespace Assets.Server
                 }
             }
 
+            GameState.instance.FixedUpdate();
             UDPServer.getInstance().FixedUpdate();
         }
 
