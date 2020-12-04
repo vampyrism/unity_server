@@ -14,11 +14,14 @@ namespace Assets.Server
         // TODO: Should be a ConcurrentQueue
         public ConcurrentQueue<Action> TaskQueue { get; private set; }
         public ConcurrentDictionary<UInt32, Entity> Entities { get; private set; } = new ConcurrentDictionary<uint, Entity>();
+        
 
         // Start is called before the first frame update
         void Start()
         {
             Debug.Log("Starting server...");
+            //Runs the GameLoader script
+            (Resources.Load("GameLoader") as GameObject).GetComponent<GameLoader>().Init();
             this.TaskQueue = new ConcurrentQueue<Action>();
             Server.instance = this;
             UDPServer.getInstance().Init(this);
@@ -42,6 +45,7 @@ namespace Assets.Server
                 }
             }
 
+            GameState.instance.FixedUpdate();
             UDPServer.getInstance().FixedUpdate();
         }
 

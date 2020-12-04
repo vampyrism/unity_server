@@ -40,8 +40,40 @@ namespace Assets.Server
         {
             try
             {
+                // Update gamestate of current client
+                foreach (KeyValuePair<UInt32, Entity> kv in GameState.instance.Entities)
+                {
+                    if (kv.Value.GetType() == typeof(Player)) // TODO: Create all entities, not just player
+                    {
+                        Player e = (Player) kv.Value;
+                        EntityUpdateMessage entity = new EntityUpdateMessage(
+                            EntityUpdateMessage.Type.PLAYER,
+                            EntityUpdateMessage.Action.CREATE,
+                            kv.Key
+                            );
+                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+
+                        this.SendMessage(entity);
+                        this.SendMessage(move);
+                    }
+
+                    if (kv.Value.GetType() == typeof(Enemy)) // TODO: Create all entities, not just player
+                    {
+                        Enemy e = (Enemy)kv.Value;
+                        EntityUpdateMessage entity = new EntityUpdateMessage(
+                            EntityUpdateMessage.Type.ENEMY,
+                            EntityUpdateMessage.Action.CREATE,
+                            kv.Key
+                            );
+                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+
+                        this.SendMessage(entity);
+                        this.SendMessage(move);
+                    }
+                }
+
                 //this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
-                UInt32 playerID = GameState.instance.CreatePlayer();
+                UInt32 playerID = GameState.instance.CreatePlayer(this, 50, 50);
                 //Server.instance.Entities.TryAdd(this.Player.GetComponent<Player>().ID, this.Player.GetComponent<Player>());
 
                 Debug.Log("Entity id is " + playerID);

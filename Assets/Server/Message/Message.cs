@@ -14,6 +14,7 @@ namespace Assets.Server
         protected static readonly byte PICKUP = 1;
         protected static readonly byte ATTACK = 2;
         protected static readonly byte ENTITY_UPDATE = 3;
+        protected static readonly byte STATE_UPDATE = 4;
 
         // Factory dictionary for message types
         private static readonly Dictionary<byte, Func<byte[], int, Message>> typeConstructors = 
@@ -21,7 +22,8 @@ namespace Assets.Server
         {
             { MOVEMENT,         (byte[] bytes, int cursor) => new MovementMessage(bytes, cursor) },
             { ATTACK,           (byte[] bytes, int cursor) => new AttackMessage(bytes, cursor) },
-            { ENTITY_UPDATE,    (byte[] bytes, int cursor) => new EntityUpdateMessage(bytes, cursor) }
+            { ENTITY_UPDATE,    (byte[] bytes, int cursor) => new EntityUpdateMessage(bytes, cursor) },
+            { STATE_UPDATE,     (byte[] bytes, int cursor) => new StateUpdateMessage(bytes, cursor) }
         };
 
         // Parse bytes and return appropriate Message type
