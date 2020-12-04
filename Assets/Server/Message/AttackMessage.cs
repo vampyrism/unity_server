@@ -104,12 +104,12 @@ namespace Assets.Server
 
         public short GetSequenceNumber() => BitConverter.ToInt16(message, SEQUENCE_NUMBER);
 
-        public short GetEntityId() => BitConverter.ToInt16(message, ENTITY_ID);
+        public uint GetEntityId() => BitConverter.ToUInt32(message, ENTITY_ID);
 
         public byte GetActionType() => message[ACTION_TYPE];
 
         public byte GetActionDescriptor() => message[ACTION_DESCRIPTOR];
-        public short GetTargetEntityId() => BitConverter.ToInt16(message, TARGET_ENTITY_ID);
+        public uint GetTargetEntityId() => BitConverter.ToUInt32(message, TARGET_ENTITY_ID);
         public short GetWeaponType() => BitConverter.ToInt16(message, WEAPON_TYPE);
         public short GetAttackValid() => BitConverter.ToInt16(message, ATTACK_VALID);
 
