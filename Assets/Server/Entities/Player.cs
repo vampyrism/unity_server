@@ -11,12 +11,19 @@ public class Player : Character
 {
     // Variables regarding physics
     Rigidbody2D body;
+    private Animator animator;
 
     // Variables regarding movement
     private float moveLimiter = 0.7f;
     [SerializeField] private float runSpeed = 1.0f;
 
     private float timestampForNextAction;
+
+
+    private GameObject newItemPickedUp;
+    [SerializeField] private List<GameObject> weaponsList;
+    private List<bool> weaponsBoolList;
+    private Weapon equippedWeapon = null;
 
     // Networking
     public Client Client { get; set; }
@@ -63,10 +70,22 @@ public class Player : Character
 
     }
 
-    public void TryToAttack(Vector2 targetPosition)
+    public void TryToAttack(Vector2 targetPosition, int weaponId)
     {
+        if (Time.time >= timestampForNextAction)
+        {
+            animator.SetTrigger("Attack");
+            equippedWeapon = weaponsList[weaponId].GetComponent<Weapon>();
+            equippedWeapon.MakeAttack(targetPosition, transform.position);
+            timestampForNextAction = Time.time + equippedWeapon.reloadSpeed;
 
+        }
+        else
+        {
+            Debug.Log("Trying to fire too fast");
+        }
     }
+
 
     public override void TakeDamage(float damage)
     {
