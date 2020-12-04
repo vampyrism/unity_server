@@ -154,14 +154,16 @@ namespace Assets.Server
         /// </summary>
         /// <param name="playerId">Id of attacking <c>Player</c>.</param>
         /// <param name="targetId">Id of attacked <c>Player</c>.</param>
-        public bool PlayerAttack(UInt32 playerId, UInt32 targetId)
+        public void PlayerAttack(uint playerId, uint targetId, int weaponId)
         {
-            Entity player = GetEntity(playerId);
-            Entity target = GetEntity(targetId);
-            // target.takeDamage(...)
-            // client.messageQueue.Enqueue( new AttackMessage(...) )
-            // ...
-            throw new NotImplementedException();
+            Player player = (Player) GetEntity(playerId);
+            Player target = (Player) GetEntity(targetId);
+            player.TryToAttack(target.transform.position, weaponId, playerId);
+        }
+
+        public void AttackValid(uint playerId)
+        {
+
         }
     }
 }
