@@ -29,18 +29,15 @@ namespace Assets.Server
         private static readonly int ACTION_TYPE = 5;
         // 6       | Entity action descriptor
         private static readonly int ACTION_DESCRIPTOR = 6;
-        // 7-10     | Entity X coordinate
-        private static readonly int X_COORDINATE = 7;
-        // 11-14   | Entity Y coordinate
-        private static readonly int Y_COORDINATE = 11;
-        // 15-18   | Entity rotation
-        private static readonly int ROTATION = 15;
-        // 19-22   | Entity X velocity
-        private static readonly int X_VELOCITY = 19;
-        // 23-26   | Entity Y velocity
-        private static readonly int Y_VELOCITY = 23;
-
+        // 7-8     | Entity X coordinate
+        private static readonly int TARGET_ENTITY_ID = 7;
+        // 9   | Type of weapon to use
+        private static readonly int WEAPON_TYPE = 9;
+        // 12   | 0 is an invalid attack 1 is valid
+        private static readonly int ATTACK_VALID = 10;
         // Byte array containing the information
+
+
         private byte[] message = new byte[MESSAGE_SIZE];
 
         public AttackMessage(byte[] bytes)
@@ -55,18 +52,16 @@ namespace Assets.Server
             message[TYPE_ID] = ATTACK;
         }
 
-        public AttackMessage(short seqNum, short entityId, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
+        public AttackMessage(short seqNum, short entityId, byte actionType, byte actionDescriptor, short targetEntityId, short weaponType, short attackValid)
         {
             message[TYPE_ID] = ATTACK;
             SetSequenceNumber(seqNum);
             SetEntityId(entityId);
             SetActionType(actionType);
             SetActionDescriptor(actionDescriptor);
-            SetXCoordinate(x);
-            SetYCoordinate(y);
-            SetRotation(r);
-            SetXVelocity(xd);
-            SetYVelocity(yd);
+            SetTargetEntityId(targetEntityId);
+            SetWeaponType(weaponType);
+            SetAttackValid(attackValid);
         }
 
         // The Setters will convert the argument to bytes and copy them into the message buffer
@@ -91,30 +86,19 @@ namespace Assets.Server
             Array.Copy(BitConverter.GetBytes(ad), 0, message, ACTION_DESCRIPTOR, 1);
         }
 
-        public void SetXCoordinate(float x)
+        public void SetTargetEntityId(short tid)
         {
-            Array.Copy(BitConverter.GetBytes(x), 0, message, X_COORDINATE, 4);
+            Array.Copy(BitConverter.GetBytes(tid), 0, message, TARGET_ENTITY_ID, 2);
+        }
+        public void SetWeaponType(short wid)
+        {
+            Array.Copy(BitConverter.GetBytes(wid), 0, message, WEAPON_TYPE, 1);
+        }
+        public void SetAttackValid(short avl)
+        {
+            Array.Copy(BitConverter.GetBytes(avl), 0, message, ATTACK_VALID, 1);
         }
 
-        public void SetYCoordinate(float y)
-        {
-            Array.Copy(BitConverter.GetBytes(y), 0, message, Y_COORDINATE, 4);
-        }
-
-        public void SetRotation(float r)
-        {
-            Array.Copy(BitConverter.GetBytes(r), 0, message, ROTATION, 4);
-        }
-
-        public void SetXVelocity(float xd)
-        {
-            Array.Copy(BitConverter.GetBytes(xd), 0, message, X_VELOCITY, 4);
-        }
-
-        public void SetYVelocity(float yd)
-        {
-            Array.Copy(BitConverter.GetBytes(yd), 0, message, Y_VELOCITY, 4);
-        }
 
         // Getters 
 
@@ -125,16 +109,9 @@ namespace Assets.Server
         public byte GetActionType() => message[ACTION_TYPE];
 
         public byte GetActionDescriptor() => message[ACTION_DESCRIPTOR];
-
-        public float GetXCoordinate() => BitConverter.ToSingle(message, X_COORDINATE);
-
-        public float GetYCoordinate() => BitConverter.ToSingle(message, Y_COORDINATE);
-
-        public float GetRotation() => BitConverter.ToSingle(message, ROTATION);
-
-        public float GetXVelocity() => BitConverter.ToSingle(message, X_VELOCITY);
-
-        public float GetYVelocity() => BitConverter.ToSingle(message, Y_VELOCITY);
+        public short GetTargetEntityId() => BitConverter.ToInt16(message, TARGET_ENTITY_ID);
+        public short GetWeaponType() => BitConverter.ToInt16(message, WEAPON_TYPE);
+        public short GetAttackValid() => BitConverter.ToInt16(message, ATTACK_VALID);
 
         public override byte[] Serialize() => message;
 
@@ -147,11 +124,9 @@ namespace Assets.Server
             s += "Entity id  \t" + GetEntityId() + "\n";
             s += "Action type\t" + GetActionType() + "\n";
             s += "Action desc\t" + GetActionDescriptor() + "\n";
-            s += "X Coord    \t" + GetXCoordinate() + "\n";
-            s += "Y Coord    \t" + GetYCoordinate() + "\n";
-            s += "Rotation   \t" + GetRotation() + "\n";
-            s += "X Velocity \t" + GetXVelocity() + "\n";
-            s += "Y Velocity \t" + GetYVelocity();
+            s += "Target Entity id    \t" + GetTargetEntityId() + "\n";
+            s += "Weapon Type    \t" + GetWeaponType() + "\n";
+            s += "Attack Validity   \t" + GetAttackValid() + "\n";
 
             return s;
         }
