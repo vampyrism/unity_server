@@ -35,7 +35,7 @@ namespace Assets.Server
                     return;
                 }
                 // Hit an Character
-                GameState.instance.AttackValid(playerId);
+                GameState.instance.AttackValid(hitCharacter.ID);
                 //hitCharacter.TakeDamage(projectileDamage);
                 Destroy(gameObject);
             } else if (collider.name == "Collision_Default"){
