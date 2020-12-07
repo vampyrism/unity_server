@@ -35,7 +35,7 @@ namespace Assets.Server
         private byte[] payload;
         
         // Total size of all messages in list
-        private int size = 0;
+        public int Size { get; private set; } = 0;
 
         // Constructor
 
@@ -49,13 +49,22 @@ namespace Assets.Server
         // See if adding one more message would mean we're still below safe threshold
         public bool SafeToAdd(int size)
         {
-            return this.size + size < SAFE_PAYLOAD; 
+            return this.Size + size < SAFE_PAYLOAD; 
+        }
+
+        /// <summary>
+        /// Returns size of unused space in <c>UDPPacket</c>
+        /// </summary>
+        /// <returns>Space left in packet</returns>
+        public int SizeLeft()
+        {
+            return SAFE_PAYLOAD - this.Size;
         }
 
         public void AddMessage(Message message)
         {
             messages.Add(message);
-            size += message.Size();
+            Size += message.Size();
         }
 
         public Message GetMessage(int index)
@@ -82,7 +91,7 @@ namespace Assets.Server
         // Returns the packet messages as single byte array
         public byte[] Serialize()
         {
-            payload = new byte[size];
+            payload = new byte[Size];
             int cursor = 0;
             // Iterate through all messages and add their serialization to the buffer
             foreach (Message message in messages)
