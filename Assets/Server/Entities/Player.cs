@@ -70,13 +70,13 @@ public class Player : Character
 
     }
 
-    public void TryToAttack(Vector2 targetPosition, int weaponId)
+    public void TryToAttack(Vector2 targetPosition, int weaponId, uint playerId)
     {
         if (Time.time >= timestampForNextAction)
         {
             animator.SetTrigger("Attack");
             equippedWeapon = weaponsList[weaponId].GetComponent<Weapon>();
-            equippedWeapon.MakeAttack(targetPosition, transform.position);
+            equippedWeapon.MakeAttack(targetPosition, transform.position, playerId);
             timestampForNextAction = Time.time + equippedWeapon.reloadSpeed;
 
         }
