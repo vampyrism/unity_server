@@ -13,5 +13,7 @@ public class GameLoader : MonoBehaviour
         Instantiate(tileMap, new Vector3(0f, 100f), Quaternion.identity);
         this.pathfinding = new Pathfinding(100, 100, 1);
         GameState.instance.CreateEnemy(50, 50);
+        GameState.instance.CreateBow(48, 52);
+        GameState.instance.CreateCrossbow(50, 52);
     }
 }

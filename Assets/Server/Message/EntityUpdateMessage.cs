@@ -21,7 +21,8 @@ namespace Assets.Server
         {
             PLAYER,
             ENEMY,
-            WEAPON_CROSSBOW
+            WEAPON_CROSSBOW,
+            WEAPON_BOW
         }
 
         public enum Action : byte

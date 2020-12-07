@@ -21,6 +21,9 @@ public abstract class Entity : MonoBehaviour
     {
         this.ID = Entity.MaxID;
         Entity.MaxID += 1;
+
+        this.X = transform.position.x;
+        this.Y = transform.position.y;
     }
 
     public virtual void DirectMove(float x, float y, float dx, float dy)

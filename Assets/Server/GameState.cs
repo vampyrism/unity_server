@@ -115,6 +115,26 @@ namespace Assets.Server
         }
 
         /// <summary>
+        /// Create <c>Weapon</c> entity and add it to the game state.
+        /// </summary>
+        /// <returns>Id of the created weapon.</returns>
+        public UInt32 CreateWeapon(string itemName) {
+            return this.CreateWeapon(0f, 0f, itemName);
+        }
+        public UInt32 CreateWeapon(float x, float y, string itemName) {
+            Weapon weapon = GameObject.Instantiate(Resources.Load<GameObject>(itemName), new Vector3(x, y), Quaternion.identity).GetComponent<Weapon>();
+            return AddEntity(weapon);
+        }
+
+        public UInt32 CreateBow(float x, float y) {
+             return this.CreateWeapon(x, y, "Bow");
+        }
+        public UInt32 CreateCrossbow(float x, float y) {
+            return this.CreateWeapon(x, y, "Crossbow");
+        }
+
+
+        /// <summary>
         /// Move <c>Player</c> with id by coordinates and velocity.
         /// </summary>
         /// <param name="id">Id of <c>Player</c> entity.</param>
