@@ -28,14 +28,14 @@ namespace Assets.Server
             return angle;
         }
 
-        private void OnTriggerEnter2D(Collider2D collider, uint playerId) {
+        private void OnTriggerEnter2D(Collider2D collider) {
             Character hitCharacter = collider.GetComponent<Character>();
             if (hitCharacter != null) {
                 if (hitCharacter.name == "Player(Clone)") {
                     return;
                 }
                 // Hit an Character
-                GameState.instance.AttackValid(hitCharacter.ID);
+                //GameState.instance.AttackValid(hitCharacter.ID);
                 //hitCharacter.TakeDamage(projectileDamage);
                 Destroy(gameObject);
             } else if (collider.name == "Collision_Default"){
