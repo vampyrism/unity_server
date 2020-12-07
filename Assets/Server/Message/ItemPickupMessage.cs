@@ -45,7 +45,7 @@ namespace Assets.Server
                 Array.Copy(bytes, cursor, message, 0, MESSAGE_SIZE);
             }
 
-            public ItemPickupMessage(ushort seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, int itemId, ushort pickupConfirmed)
+            public ItemPickupMessage(ushort seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 itemId, ushort pickupConfirmed)
             {
                 message[TYPE_ID] = MOVEMENT;
                 SetSequenceNumber(seqNum);
@@ -78,14 +78,14 @@ namespace Assets.Server
                 Array.Copy(BitConverter.GetBytes(ad), 0, message, ACTION_DESCRIPTOR, 1);
             }
 
-            public void SetPickupItemId(int x)
+            public void SetPickupItemId(UInt32 itd)
             {
-                Array.Copy(BitConverter.GetBytes(x), 0, message, PICKUP_ITEM_ID, 4);
+                Array.Copy(BitConverter.GetBytes(itd), 0, message, PICKUP_ITEM_ID, 4);
             }
 
-            public void SetPickupConfirmed(ushort y)
+            public void SetPickupConfirmed(ushort puc)
             {
-                Array.Copy(BitConverter.GetBytes(y), 0, message, PICKUP_CONFIRMED, 1);
+                Array.Copy(BitConverter.GetBytes(puc), 0, message, PICKUP_CONFIRMED, 1);
             }
 
             // Getters 
@@ -98,9 +98,9 @@ namespace Assets.Server
 
             public byte GetActionDescriptor() => message[ACTION_DESCRIPTOR];
 
-            public float GetPickupItemId() => BitConverter.ToInt32(message, PICKUP_ITEM_ID);
+            public UInt32 GetPickupItemId() => BitConverter.ToUInt32(message, PICKUP_ITEM_ID);
 
-            public float GetPickupConfirmed() => BitConverter.ToUInt16(message, PICKUP_CONFIRMED);
+            public ushort GetPickupConfirmed() => BitConverter.ToUInt16(message, PICKUP_CONFIRMED);
             public override byte[] Serialize() => message;
 
             public override int Size() => MESSAGE_SIZE;
