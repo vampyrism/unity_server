@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -31,6 +32,9 @@ namespace Assets.Server
 
         Server server;
 
+        // Time until client get kicked out (in seconds)
+        public static readonly int MAX_WAIT_TIME = 3;
+        private Timer ClearDisconnectedTimer;
 
         private UDPServer()
         {
@@ -53,6 +57,12 @@ namespace Assets.Server
             this.socket = new UdpClient(serverEndpoint);
             this.clients = new Dictionary<(string, int), Client>();
             Debug.Log("Started socket on port " + 9000);
+            
+            // Clear disconnected clients every second
+            ClearDisconnectedTimer = new System.Timers.Timer();
+            ClearDisconnectedTimer.Interval = 1000;
+            ClearDisconnectedTimer.Elapsed += (source, e) => ClearDisconnectedClients();
+            ClearDisconnectedTimer.Enabled = true;
 
             // Server main thread
             Task.Run(() =>
@@ -114,9 +124,32 @@ namespace Assets.Server
             });
         }
 
+        public void Stop() 
+        {
+            this.ClearDisconnectedTimer.Enabled = false;
+        }
+
+        public void ClearDisconnectedClients()
+        {
+            DateTime now = DateTime.Now;
+            foreach (var cursor in this.clients)
+            {   
+                Client client = cursor.Value;
+                Debug.Log(cursor.Value);
+                Debug.Log(cursor.Key);
+                int wait = now.Subtract(client.LastContact).Seconds;
+                if (wait > MAX_WAIT_TIME)
+                {
+                    this.clients.Remove(cursor.Key);
+                }
+            }
+        }
+
         public void HandleRawPacket(byte[] data, String ip, int port)
         {
             // AckPacket(pcktseq);
+            
+            this.clients[(ip, port)].MadeContact();
 
             UDPPacket packet = new UDPPacket(data);
 

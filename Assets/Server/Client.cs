@@ -21,6 +21,9 @@ namespace Assets.Server
 
         public GameObject Player { get; private set; }
 
+        // Time when this client last made contact to server
+        public DateTime LastContact { get; private set; }
+
         public Client(IPEndPoint endpoint)
         {
             Debug.Log("Creating player entity!");
@@ -29,6 +32,7 @@ namespace Assets.Server
             this.PacketQueue = new List<UDPPacket>();
             this.RemoteSeqNum = 0;
             this.LocalSeqNum = 0;
+            this.LastContact = DateTime.Now;
 
             Server.instance.TaskQueue.Enqueue(new Action(() => { this.Init(); }));
         }
@@ -100,6 +104,17 @@ namespace Assets.Server
                 Debug.Log(e);
             }
         }
+
+        // Update time when client last made contact
+        public void MadeContact()
+        {
+            this.LastContact = DateTime.Now;
+        }
+
+        ~Client() {
+            Debug.Log("Destroying");
+        }
+
 
         public UDPPacket NextPacket()
         {
