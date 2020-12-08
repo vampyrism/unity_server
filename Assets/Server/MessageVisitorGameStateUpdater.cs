@@ -43,5 +43,11 @@ namespace Assets.Server
         }
 
         public void Visit(Message m) { Debug.Log(m); }
+
+        public void Visit(ItemPickupMessage m)
+        {
+            GameState.instance.ItemPickup(m.GetEntityId(), m.GetPickupItemId());
+            Debug.Log(m);
+        }
     }
 }

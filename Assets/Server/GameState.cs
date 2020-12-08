@@ -181,9 +181,20 @@ namespace Assets.Server
             player.TryToAttack(target.transform.position, weaponId, playerId);
         }
 
-        public void AttackValid(uint playerId)
+        public void AttackValid(uint targetPlayerId)
         {
-
+            
         }
+
+        public void ItemPickup(UInt32 playerId, UInt32 itemId)
+        {
+            Entity item;
+            if (Entities.TryGetValue(itemId, out item))
+            {
+
+            }
+        }
+
+
     }
 }
