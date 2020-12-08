@@ -174,25 +174,25 @@ namespace Assets.Server
         /// </summary>
         /// <param name="playerId">Id of attacking <c>Player</c>.</param>
         /// <param name="targetId">Id of attacked <c>Player</c>.</param>
-        public void PlayerAttack(uint playerId, uint targetId, int weaponId)
+        public void PlayerAttack(UInt32 playerId, UInt32 targetId, int weaponId)
         {
             Player player = (Player) GetEntity(playerId);
             Player target = (Player) GetEntity(targetId);
-            player.TryToAttack(target.transform.position, weaponId, playerId);
+            player.TryToAttack(target.transform.position, weaponId);
         }
 
-        public void AttackValid(uint targetPlayerId)
+        public void AttackValid(UInt32 targetPlayerId, float damageAmount)
         {
-            
+            Player targetEntity = (Player) GetEntity(targetPlayerId);
+            targetEntity.TakeDamage(damageAmount);
+            AttackMessage newAttack = new AttackMessage(0, targetPlayerId, 0, 0, 0, 0, 1, damageAmount);
+            targetEntity.Client.MessageQueue.Enqueue(newAttack);
         }
 
         public void ItemPickup(UInt32 playerId, UInt32 itemId)
         {
-            Entity item;
-            if (Entities.TryGetValue(itemId, out item))
-            {
 
-            }
+
         }
 
 
