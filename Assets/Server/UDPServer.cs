@@ -135,11 +135,10 @@ namespace Assets.Server
             foreach (var cursor in this.clients)
             {   
                 Client client = cursor.Value;
-                Debug.Log(cursor.Value);
-                Debug.Log(cursor.Key);
                 int wait = now.Subtract(client.LastContact).Seconds;
                 if (wait > MAX_WAIT_TIME)
                 {
+                    client.Dispose();
                     this.clients.Remove(cursor.Key);
                 }
             }
