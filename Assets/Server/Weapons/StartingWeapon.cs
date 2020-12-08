@@ -16,7 +16,7 @@ public class StartingWeapon : Weapon
         this.isRanged = false;
     }
 
-    public override void MakeAttack(Vector2 clickPosition, Vector2 playerPosition, uint playerId) {
+    public override void MakeAttack(Vector2 clickPosition, Vector2 playerPosition) {
         Vector2 attackDirection = (clickPosition - (Vector2)playerPosition).normalized;
         Vector2 weaponBoxPosition = playerPosition + (attackDirection * weaponDistanceFromPlayer);
         weaponBoxPosition.y += offsetInYDirection;
@@ -34,7 +34,7 @@ public class StartingWeapon : Weapon
                     continue;
                 }
                 // Hit an Character
-                hitCharacter.TakeDamage(weaponDamage);
+                Assets.Server.GameState.instance.AttackValid(hitCharacter.ID, weaponDamage);
             }
             else if (hitTargets[i].name == "Collision_Default") {
                 // Hit a wall

@@ -8,11 +8,9 @@ namespace Assets.Server
     public class Projectile : MonoBehaviour
     {
         //sender of the projectile
-        public uint senderId;
         public float moveSpeed = 20;
         private float projectileDamage;
-        public void Setup(Vector3 shootDirection, float weapondamage, uint playerId) {
-            senderId = playerId;
+        public void Setup(Vector3 shootDirection, float weapondamage) {
             projectileDamage = weapondamage;
             Rigidbody2D rigidbody2D = GetComponent<Rigidbody2D>();
             rigidbody2D.AddForce(shootDirection * moveSpeed, ForceMode2D.Impulse);
@@ -35,8 +33,7 @@ namespace Assets.Server
                     return;
                 }
                 // Hit an Character
-                //GameState.instance.AttackValid(hitCharacter.ID);
-                //hitCharacter.TakeDamage(projectileDamage);
+                GameState.instance.AttackValid(hitCharacter.ID, projectileDamage);
                 Destroy(gameObject);
             } else if (collider.name == "Collision_Default"){
                 // Hit a wall
