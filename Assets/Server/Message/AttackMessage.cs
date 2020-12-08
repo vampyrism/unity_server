@@ -14,7 +14,7 @@ namespace Assets.Server
     public class AttackMessage : Message
     {
         // Total size of message
-        public static readonly int MESSAGE_SIZE = 27;
+        public static readonly int MESSAGE_SIZE = 15;
 
         // Indices for the values in the message
         // Bytes   | Description
@@ -36,6 +36,7 @@ namespace Assets.Server
         // 12   | 0 is an invalid attack 1 is valid
         private static readonly int ATTACK_VALID = 10;
         // Byte array containing the information
+        private static readonly int DAMAGE_AMOUNT = 11;
 
 
         private byte[] message = new byte[MESSAGE_SIZE];
@@ -52,7 +53,7 @@ namespace Assets.Server
             message[TYPE_ID] = ATTACK;
         }
 
-        public AttackMessage(short seqNum, short entityId, byte actionType, byte actionDescriptor, short targetEntityId, short weaponType, short attackValid)
+        public AttackMessage(short seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount)
         {
             message[TYPE_ID] = ATTACK;
             SetSequenceNumber(seqNum);
@@ -62,6 +63,7 @@ namespace Assets.Server
             SetTargetEntityId(targetEntityId);
             SetWeaponType(weaponType);
             SetAttackValid(attackValid);
+            SetDamageAmount(damageAmount);
         }
 
         // The Setters will convert the argument to bytes and copy them into the message buffer
@@ -71,7 +73,7 @@ namespace Assets.Server
             Array.Copy(BitConverter.GetBytes(sn), 0, message, SEQUENCE_NUMBER, 2);
         }
 
-        public void SetEntityId(short ei)
+        public void SetEntityId(UInt32 ei)
         {
             Array.Copy(BitConverter.GetBytes(ei), 0, message, ENTITY_ID, 2);
         }
@@ -86,7 +88,7 @@ namespace Assets.Server
             Array.Copy(BitConverter.GetBytes(ad), 0, message, ACTION_DESCRIPTOR, 1);
         }
 
-        public void SetTargetEntityId(short tid)
+        public void SetTargetEntityId(UInt32 tid)
         {
             Array.Copy(BitConverter.GetBytes(tid), 0, message, TARGET_ENTITY_ID, 2);
         }
@@ -97,6 +99,10 @@ namespace Assets.Server
         public void SetAttackValid(short avl)
         {
             Array.Copy(BitConverter.GetBytes(avl), 0, message, ATTACK_VALID, 1);
+        }
+        public void SetDamageAmount(float dmg)
+        {
+            Array.Copy(BitConverter.GetBytes(dmg), 0, message, DAMAGE_AMOUNT, 4);
         }
 
 
@@ -112,6 +118,7 @@ namespace Assets.Server
         public uint GetTargetEntityId() => BitConverter.ToUInt32(message, TARGET_ENTITY_ID);
         public short GetWeaponType() => BitConverter.ToInt16(message, WEAPON_TYPE);
         public short GetAttackValid() => BitConverter.ToInt16(message, ATTACK_VALID);
+        public float GetDamageAmount() => BitConverter.ToSingle(message, DAMAGE_AMOUNT);
 
         public override byte[] Serialize() => message;
 
@@ -127,6 +134,7 @@ namespace Assets.Server
             s += "Target Entity id    \t" + GetTargetEntityId() + "\n";
             s += "Weapon Type    \t" + GetWeaponType() + "\n";
             s += "Attack Validity   \t" + GetAttackValid() + "\n";
+            s += "Damage Amount\t" + GetDamageAmount() + "\n";
 
             return s;
         }
