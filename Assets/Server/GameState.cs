@@ -185,5 +185,16 @@ namespace Assets.Server
         {
 
         }
+
+        public void DestroyEntityID(uint entityID) {
+            if (Entities.TryGetValue(entityID, out Entity e)) {
+                Server.instance.TaskQueue.Enqueue(new Action(() => {
+                    Server.instance.ServerDestroyEntity(e);
+                }));
+            }
+            else {
+                Debug.Log("Trying to destroy entity ID: " + entityID + ", but couldn't find it.");
+            }
+        }
     }
 }
