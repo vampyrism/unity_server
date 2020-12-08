@@ -70,13 +70,13 @@ public class Player : Character
 
     }
 
-    public void TryToAttack(Vector2 targetPosition, int weaponId, uint playerId)
+    public void TryToAttack(Vector2 targetPosition, int weaponId)
     {
         if (Time.time >= timestampForNextAction)
         {
             animator.SetTrigger("Attack");
             equippedWeapon = weaponsList[weaponId].GetComponent<Weapon>();
-            equippedWeapon.MakeAttack(targetPosition, transform.position, playerId);
+            equippedWeapon.MakeAttack(targetPosition, transform.position);
             timestampForNextAction = Time.time + equippedWeapon.reloadSpeed;
 
         }
@@ -89,7 +89,13 @@ public class Player : Character
 
     public override void TakeDamage(float damage)
     {
-
+        Debug.Log("Player took " + damage + " damage!");
+        animator.SetTrigger("Hit");
+        currentHealth = currentHealth - damage;
+        if (currentHealth <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
