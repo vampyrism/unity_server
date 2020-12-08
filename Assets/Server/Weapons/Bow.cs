@@ -4,7 +4,9 @@ using UnityEngine;
 
 namespace Asserts.Server
 {
-    public class Bow : Weapon
+
+}
+public class Bow : Weapon
     {
 
         [SerializeField] private Transform projectile;
@@ -23,4 +25,3 @@ namespace Asserts.Server
         }
 
     }
-}

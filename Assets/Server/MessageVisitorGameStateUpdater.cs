@@ -42,6 +42,15 @@ namespace Assets.Server
             Debug.Log(m);
         }
 
+        public void Visit(ItemPickupMessage m) {
+            Entity item;
+            if (GameState.instance.Entities.TryGetValue(m.GetPickupItemId(), out item)) {
+                m.SetPickupConfirmed(1);
+                UDPServer.getInstance().BroadcastMessage(m);
+                GameState.instance.DestroyEntityID(m.GetPickupItemId());
+            }
+        }
+
         public void Visit(Message m) { Debug.Log(m); }
     }
 }

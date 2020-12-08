@@ -62,5 +62,11 @@ namespace Assets.Server
         {
             
         }
+
+        public void ServerDestroyEntity(Entity e) {
+            Debug.Log("Inside serverdestroy");
+            Destroy(e.gameObject);
+        }
+
     }
 }
