@@ -21,6 +21,7 @@ namespace Assets.Server
         new Dictionary<byte, Func<byte[], int, Message>>()
         {
             { MOVEMENT,         (byte[] bytes, int cursor) => new MovementMessage(bytes, cursor) },
+            { PICKUP,           (byte[] bytes, int cursor) => new ItemPickupMessage(bytes, cursor) },
             { ATTACK,           (byte[] bytes, int cursor) => new AttackMessage(bytes, cursor) },
             { ENTITY_UPDATE,    (byte[] bytes, int cursor) => new EntityUpdateMessage(bytes, cursor) },
             { STATE_UPDATE,     (byte[] bytes, int cursor) => new StateUpdateMessage(bytes, cursor) }

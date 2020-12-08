@@ -11,6 +11,7 @@ namespace Assets.Server
         void Visit(MovementMessage m);
         void Visit(AttackMessage m);
         void Visit(EntityUpdateMessage m);
+        void Visit(ItemPickupMessage m);
         void Visit(Message m);
     }
 }

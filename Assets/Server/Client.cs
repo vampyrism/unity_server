@@ -61,7 +61,7 @@ namespace Assets.Server
                         this.SendMessage(move);
                     }
 
-                    if (kv.Value.GetType() == typeof(Enemy)) // TODO: Create all entities, not just player
+                    if (kv.Value.GetType() == typeof(Enemy))
                     {
                         Enemy e = (Enemy)kv.Value;
                         EntityUpdateMessage entity = new EntityUpdateMessage(
@@ -74,6 +74,33 @@ namespace Assets.Server
                         this.SendMessage(entity);
                         this.SendMessage(move);
                     }
+
+                    if (kv.Value.GetType() == typeof(Bow) || kv.Value.GetType() == typeof(Crossbow))
+                   {
+                        EntityUpdateMessage entity = null;
+                        Weapon e = (Weapon)kv.Value;
+                        if (e.GetType() == typeof(Bow)) {
+                            entity = new EntityUpdateMessage(
+                                EntityUpdateMessage.Type.WEAPON_BOW,
+                                EntityUpdateMessage.Action.CREATE,
+                                kv.Key
+                                );
+                        } else if ( e.GetType() == typeof(Crossbow)) {
+                            entity = new EntityUpdateMessage(
+                                EntityUpdateMessage.Type.WEAPON_CROSSBOW,
+                                EntityUpdateMessage.Action.CREATE,
+                                kv.Key
+                                );
+                        } else {
+                            throw new Exception("Weapon type not found");
+                        }
+                        Debug.Log("Creating a weapon move message with x: " + e.X + " y: " + e.Y);
+                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+
+                        this.SendMessage(entity);
+                        this.SendMessage(move);
+                    }
+
                 }
 
                 //this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
