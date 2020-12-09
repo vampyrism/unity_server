@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using UnityEngine;
@@ -34,13 +35,19 @@ namespace Assets.Server
 
         // Time until client get kicked out (in seconds)
         public static readonly int MAX_WAIT_TIME = 3;
-        private Timer ClearDisconnectedTimer;
+        private System.Timers.Timer ClearDisconnectedTimer;
+
+        private CancellationTokenSource tokenSource;
+        private CancellationToken token;
 
         private UDPServer()
         {
             this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
             this.remoteSeqNum = 0;
             this.localSeqNum = 0;
+
+            this.tokenSource = new CancellationTokenSource();
+            this.token = tokenSource.Token;
         }
 
         private void AckPacket(UInt16 seq)
@@ -67,10 +74,13 @@ namespace Assets.Server
             // Server main thread
             Task.Run(() =>
             {
-                while (true)
+                int i = 0;
+                while (!token.IsCancellationRequested)
                 {
+                    Debug.Log("loop");
                     try
                     {
+
                         byte[] data = new byte[2048];
 
                         try
@@ -121,17 +131,21 @@ namespace Assets.Server
                         Debug.LogError(e);
                     }
                 }
+
+                Debug.Log("Shutting down...");
             });
         }
 
         public void Stop() 
         {
-            this.ClearDisconnectedTimer.Enabled = false;
+            this.tokenSource.Cancel();
+            this.socket.Close();
         }
 
         public void ClearDisconnectedClients()
         {
             DateTime now = DateTime.Now;
+            Debug.Log("ClearDisconnectedClients");
             foreach (var cursor in this.clients)
             {   
                 Client client = cursor.Value;
@@ -142,6 +156,7 @@ namespace Assets.Server
                     this.clients.Remove(cursor.Key);
                 }
             }
+            this.ClearDisconnectedTimer.Enabled = !this.token.IsCancellationRequested;
         }
 
         public void HandleRawPacket(byte[] data, String ip, int port)
