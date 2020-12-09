@@ -130,7 +130,7 @@ namespace Assets.Server
 
         public UDPPacket NextPacket()
         {
-            return BuildPacket(new UDPPacket());
+            return BuildPacket(new UDPPacket(this.LocalSeqNum, this.RemoteSeqNum));
         }
 
         /// <summary>

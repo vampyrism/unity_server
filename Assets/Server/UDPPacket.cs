@@ -9,6 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime;
 using System.Security.Cryptography;
 using UnityEngine;
+using System.Collections;
 
 //
 // This module handles serialization of the information sent over UDP between the game client and server.
@@ -33,13 +34,41 @@ namespace Assets.Server
 
         // Readable buffer for serialization
         private byte[] payload;
+
+
+        private BitArray AckArray { get; set; } = new BitArray(32);
+        public UInt16 AckNumber { get; private set; }
+        public UInt16 SequenceNumber { get; private set; }
         
         // Total size of all messages in list
-        public int Size { get; private set; } = 0;
+        // Begin at 8 due to packet header (ack+seq)
+        public int Size { get; private set; } = 8;
 
         // Constructor
+        /// <summary>
+        /// Creates a new <c>UDPPacket</c>
+        /// </summary>
+        /// <param name="sequence_number">Local sequence number</param>
+        /// <param name="ack_number">Remote sequence number (i.e. last received seq from remote)</param>
+        public UDPPacket(UInt16 sequence_number, UInt16 ack_number) {
+            this.SequenceNumber = sequence_number;
+            this.AckNumber = ack_number;
+        }
 
-        public UDPPacket() {}
+        public void AckPacket(UInt16 sequence_number)
+        {
+            UInt16 offset = (UInt16) (this.AckNumber - sequence_number);
+
+            if(offset >= 32)
+            {
+                return;
+            }
+
+            if(offset < 32 && offset >= 0)
+            {
+                this.AckArray.Set((int) offset, true);
+            }
+        }
 
         public UDPPacket(byte[] bytes)
         {
