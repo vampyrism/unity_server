@@ -182,7 +182,6 @@ namespace Assets.Server
         /// <param name="m"></param>
         public void BroadcastMessage(Message m)
         {
-            Debug.Log(m);
             foreach(var cursor in this.clients)
             {
                 Client cursorValue = cursor.Value;

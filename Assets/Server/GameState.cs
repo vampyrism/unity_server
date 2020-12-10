@@ -75,6 +75,14 @@ namespace Assets.Server
             return Entities.ContainsKey(id);
         }
 
+        public void RemoveEntity(UInt32 id)
+        {
+            if (ContainsEntity(id))
+            {
+                Entities.Remove(id);
+            }
+        }
+
         // Game Updates
 
         /// <summary>
@@ -188,6 +196,7 @@ namespace Assets.Server
 
         public void DestroyEntityID(uint entityID) {
             if (Entities.TryGetValue(entityID, out Entity e)) {
+                RemoveEntity(entityID);
                 Server.instance.TaskQueue.Enqueue(new Action(() => {
                     Server.instance.ServerDestroyEntity(e);
                 }));
