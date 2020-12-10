@@ -17,7 +17,7 @@ namespace Assets.Server
         public Dictionary<UInt32, Entity> Entities { get; private set; }
 
         // Time left of current day/night cycle
-        private DayNightCycle dayNightCycle;
+        public DayNightCycle dayNightCycle;
 
         private GameState()
         {
