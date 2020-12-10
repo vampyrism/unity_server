@@ -34,7 +34,7 @@ namespace Assets.Server
         Server server;
 
         // Time until client get kicked out (in seconds)
-        public static readonly int MAX_WAIT_TIME = 3;
+        public static readonly int MAX_WAIT_TIME = 10;
         private System.Timers.Timer ClearDisconnectedTimer;
 
         private CancellationTokenSource tokenSource;
@@ -74,13 +74,10 @@ namespace Assets.Server
             // Server main thread
             Task.Run(() =>
             {
-                int i = 0;
                 while (!token.IsCancellationRequested)
                 {
-                    Debug.Log("loop");
                     try
                     {
-
                         byte[] data = new byte[2048];
 
                         try
@@ -142,10 +139,10 @@ namespace Assets.Server
             this.socket.Close();
         }
 
+        // This will be called intermittently in order to clear dead connnections
         public void ClearDisconnectedClients()
         {
             DateTime now = DateTime.Now;
-            Debug.Log("ClearDisconnectedClients");
             foreach (var cursor in this.clients)
             {   
                 Client client = cursor.Value;
@@ -185,6 +182,7 @@ namespace Assets.Server
         /// <param name="m"></param>
         public void BroadcastMessage(Message m)
         {
+            Debug.Log(m);
             foreach(var cursor in this.clients)
             {
                 Client cursorValue = cursor.Value;

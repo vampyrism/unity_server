@@ -191,6 +191,12 @@ namespace Assets.Server
                 if(disposing)
                 {
                     GameState.instance.DestroyEntityID(this.PlayerID);
+                    EntityUpdateMessage message = new EntityUpdateMessage(
+                        EntityUpdateMessage.Type.PLAYER,
+                        EntityUpdateMessage.Action.DELETE,
+                        this.PlayerID
+                        );
+                    UDPServer.getInstance().BroadcastMessage(message);
                 }
                 
                 disposed = true;
