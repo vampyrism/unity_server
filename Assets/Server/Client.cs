@@ -1,23 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditor;
-using UnityEditor.Build.Player;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Assets.Server
 {
     public class Client
     {
+        #region attributes
         public IPEndPoint Endpoint { get; private set; }
+
+        #region outgoing_queues
         public Queue<Message> MessageQueue { get; private set; }
         public List<UDPPacket> PacketQueue { get; private set; }
+        #endregion
+
+        #region sequence_numbers
         public UInt16 RemoteSeqNum { get; private set; }
         public UInt16 LocalSeqNum { get; private set; }
+        #endregion
+
+        // Send and Receive buffers
+        #region send_receive_buffers
+        private static readonly int BufferSize = 1024;
+        public UInt32[] ReceiveSequenceBuffer   { get; private set; } = new UInt32[BufferSize];
+        public UInt32[] SendSequenceBuffer      { get; private set; } = new UInt32[BufferSize];
+        public UDPAckPacket[] ReceiveBuffer     { get; private set; } = new UDPAckPacket[BufferSize];
+        public UDPAckPacket[] SendBuffer        { get; private set; } = new UDPAckPacket[BufferSize];
+        #endregion
+        #endregion
 
         public GameObject Player { get; private set; }
 
@@ -29,6 +40,14 @@ namespace Assets.Server
             this.PacketQueue = new List<UDPPacket>();
             this.RemoteSeqNum = 0;
             this.LocalSeqNum = 0;
+
+            #region initialize_send_receive_buffers
+            for (int i = 0; i < BufferSize; i++)
+            {
+                this.ReceiveSequenceBuffer[i] = 0xFFFFFFFF;
+                this.SendSequenceBuffer[i] = 0xFFFFFFFF;
+            }
+            #endregion
 
             Server.instance.TaskQueue.Enqueue(new Action(() => { this.Init(); }));
         }
@@ -72,22 +91,27 @@ namespace Assets.Server
                     }
 
                     if (kv.Value.GetType() == typeof(Bow) || kv.Value.GetType() == typeof(Crossbow))
-                   {
+                    {
                         EntityUpdateMessage entity = null;
                         Weapon e = (Weapon)kv.Value;
-                        if (e.GetType() == typeof(Bow)) {
+                        if (e.GetType() == typeof(Bow)) 
+                        {
                             entity = new EntityUpdateMessage(
                                 EntityUpdateMessage.Type.WEAPON_BOW,
                                 EntityUpdateMessage.Action.CREATE,
                                 kv.Key
                                 );
-                        } else if ( e.GetType() == typeof(Crossbow)) {
+                        } 
+                        else if ( e.GetType() == typeof(Crossbow)) 
+                        {
                             entity = new EntityUpdateMessage(
                                 EntityUpdateMessage.Type.WEAPON_CROSSBOW,
                                 EntityUpdateMessage.Action.CREATE,
                                 kv.Key
                                 );
-                        } else {
+                        } 
+                        else 
+                        {
                             throw new Exception("Weapon type not found");
                         }
                         Debug.Log("Creating a weapon move message with x: " + e.X + " y: " + e.Y);
@@ -128,9 +152,34 @@ namespace Assets.Server
             }
         }
 
+        /// <summary>
+        /// Builds a new packet and increments the local sequence ID or
+        /// a packet that needs to be resent.
+        /// </summary>
+        /// <returns>UDPPacket to be sent</returns>
         public UDPPacket NextPacket()
         {
-            return BuildPacket(new UDPPacket(this.LocalSeqNum, this.RemoteSeqNum));
+            UDPPacket p = BuildPacket(new UDPPacket(this.LocalSeqNum, this.RemoteSeqNum));
+
+            // TODO: Generate Packet ack bitfield
+            /*foreach(UDPAckPacket ap in this.ReceiveBuffer)
+            {
+                if(ap.Acked)
+                {
+                    p.AckPacket()
+                }
+            }*/
+
+            this.SendBuffer[this.LocalSeqNum % BufferSize] = new UDPAckPacket { 
+                Acked = false,
+                SendTime = Time.realtimeSinceStartup // Note: we care about diff between send-ACK time for RTT calc
+            };
+
+            this.SendSequenceBuffer[this.LocalSeqNum % BufferSize] = this.LocalSeqNum;
+
+            this.LocalSeqNum += 1;
+
+            return p;
         }
 
         /// <summary>
@@ -157,9 +206,31 @@ namespace Assets.Server
             this.MessageQueue.Enqueue(m);
         }
 
-        public void AckPacket(UInt16 remoteSeqNum)
+        /// <summary>
+        /// Acks packet with local sequence number <c>SequenceNumber</c>
+        /// </summary>
+        /// <param name="SequenceNumber">the local sequence number to ack</param>
+        public void AckPacket(UInt16 SequenceNumber)
         {
+            int i = SequenceNumber % BufferSize;
+            if(this.SendSequenceBuffer[i] == SequenceNumber)
+            {
+                this.SendBuffer[i].Acked = true;
+                // TODO: Update RTT calculation
+            }
+        }
 
+        public UDPAckPacket GetSentPacket(UInt16 SequenceNumber)
+        {
+            int i = SequenceNumber % BufferSize;
+            if (this.SendSequenceBuffer[i] == SequenceNumber)
+            {
+                return this.SendBuffer[i];
+            } 
+            else
+            {
+                return new UDPAckPacket { Acked = false, SendTime = 0, Packet = null };
+            }
         }
     }
 }

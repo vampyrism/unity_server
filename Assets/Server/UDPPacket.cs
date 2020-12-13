@@ -22,6 +22,15 @@ using System.Collections;
 
 namespace Assets.Server
 {
+    /// <summary>
+    /// Used for storing the ACK datastructure in UDPServer/Client
+    /// </summary>
+    public struct UDPAckPacket
+    {
+        public bool Acked;
+        public double SendTime;
+        public UDPPacket Packet;
+    }
 
     public class UDPPacket
     {
