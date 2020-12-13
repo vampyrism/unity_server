@@ -119,7 +119,7 @@ namespace Assets.Server
             // AckPacket(pcktseq);
 
             UDPPacket packet = new UDPPacket(data);
-
+            
             List<Message> messages = packet.GetMessages();
             try
             {

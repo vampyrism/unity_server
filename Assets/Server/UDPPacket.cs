@@ -169,8 +169,20 @@ namespace Assets.Server
         // Deserialize byte array into list of messages
         public List<Message> Deserialize(byte[] bytes)
         {
-            int cursor = 8;
             int length = bytes.Length;
+            int cursor = 0;
+            if(length < 8)
+            {
+                return messages;
+            }
+
+            this.AckArray = new BitArray(BitConverter.GetBytes(BitConverter.ToUInt32(bytes, cursor)));
+            cursor += 4;
+            this.AckNumber = BitConverter.ToUInt16(bytes, cursor);
+            cursor += 2;
+            this.SequenceNumber = BitConverter.ToUInt16(bytes, cursor);
+            cursor += 2;
+
             while (cursor < length)
             {
                 Message message = Message.Deserialize(bytes, cursor);
@@ -179,6 +191,23 @@ namespace Assets.Server
             }
 
             return messages;
+        }
+
+        public void PrintHeader()
+        {
+            Debug.Log("Packet with sequence id " + this.SequenceNumber
+            + "\nAcked packet number " + this.AckNumber
+            + "\nBitField " + PrintBitArray(this.AckArray));
+        }
+
+        private string PrintBitArray(BitArray ba)
+        {
+            string s = "";
+            foreach(bool b in ba)
+            {
+                s = s + " " + b;
+            }
+            return s;
         }
 
         public void Print()
