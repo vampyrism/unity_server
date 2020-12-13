@@ -171,7 +171,7 @@ namespace Assets.Server
             }
             catch (Exception e)
             {
-                Debug.Log("Exception from send task: " + e.Message);
+                Debug.Log("Exception from send task: " + e.Message + "\n stack trace:\n" + e.StackTrace);
             }
         }
     }

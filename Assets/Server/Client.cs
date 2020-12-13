@@ -169,10 +169,28 @@ namespace Assets.Server
                     p.AckPacket()
                 }
             }*/
+            UInt16 index = (UInt16)(this.RemoteSeqNum % BufferSize);
+            for (UInt16 offset = 0; offset < 32; offset++)
+            {
+                int i = index - offset;
+                if(i < 0)
+                {
+                    i = BufferSize + i;
+                }
+
+                if (this.ReceiveSequenceBuffer[i] == this.RemoteSeqNum - offset)
+                {
+                    if(this.ReceiveBuffer[i].Acked)
+                    {
+                        p.AckPacket((UInt16)(this.RemoteSeqNum - offset));
+                    }
+                }
+            }
 
             this.SendBuffer[this.LocalSeqNum % BufferSize] = new UDPAckPacket { 
                 Acked = false,
-                SendTime = Time.realtimeSinceStartup // Note: we care about diff between send-ACK time for RTT calc
+                SendTime = Time.realtimeSinceStartup, // Note: we care about diff between send-ACK time for RTT calc
+                Packet = p
             };
 
             this.SendSequenceBuffer[this.LocalSeqNum % BufferSize] = this.LocalSeqNum;
