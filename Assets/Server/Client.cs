@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
@@ -166,7 +167,7 @@ namespace Assets.Server
             {
                 if(ap.Acked)
                 {
-                    p.AckPacket()
+                    p.AckIncomingPacket()
                 }
             }*/
             UInt16 index = (UInt16)(this.RemoteSeqNum % BufferSize);
@@ -225,16 +226,40 @@ namespace Assets.Server
         }
 
         /// <summary>
-        /// Acks packet with local sequence number <c>SequenceNumber</c>
+        /// Acks incoming packet
         /// </summary>
-        /// <param name="SequenceNumber">the local sequence number to ack</param>
-        public void AckPacket(UInt16 SequenceNumber)
+        /// <param name="packet">the packet to ack</param>
+        public void AckIncomingPacket(UDPPacket packet)
         {
-            int i = SequenceNumber % BufferSize;
-            if(this.SendSequenceBuffer[i] == SequenceNumber)
+            int i = packet.SequenceNumber % BufferSize;
+            
+            if(packet.SequenceNumber > this.RemoteSeqNum)
+            {
+                this.RemoteSeqNum = packet.SequenceNumber;
+            }
+
+            this.ReceiveSequenceBuffer[i] = packet.SequenceNumber;
+            this.ReceiveBuffer[i].Acked = true;
+            this.ReceiveBuffer[i].Packet = packet;
+
+
+            for(UInt16 offset = 1; offset <= 32; offset++)
+            {
+                if(packet.AckArray[offset - 1])
+                {
+                    if(this.SendSequenceBuffer[(packet.AckNumber - offset) % BufferSize] == (packet.AckNumber - offset))
+                    {
+                        this.SendBuffer[(packet.AckNumber - offset) % BufferSize].Acked = true;
+                    }
+                }
+            }
+            
+
+
+            i = packet.AckNumber % BufferSize;
+            if(this.SendSequenceBuffer[i] == packet.AckNumber)
             {
                 this.SendBuffer[i].Acked = true;
-                // TODO: Update RTT calculation
             }
         }
 

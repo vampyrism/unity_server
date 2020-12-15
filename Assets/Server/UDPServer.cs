@@ -116,10 +116,16 @@ namespace Assets.Server
 
         public void HandleRawPacket(byte[] data, String ip, int port)
         {
-            // AckPacket(pcktseq);
+            // AckIncomingPacket(pcktseq);
 
             UDPPacket packet = new UDPPacket(data);
-            
+
+            #region ackpacket
+            bool s = this.clients.TryGetValue((ip, port), out Client c);
+            if (!s) throw new Exception("Unable to find client");
+            c.AckIncomingPacket(packet);
+            #endregion
+
             List<Message> messages = packet.GetMessages();
             try
             {

@@ -56,7 +56,7 @@ namespace Assets.Server
         private byte[] payload;
 
 
-        private BitArray AckArray { get; set; } = new BitArray(32);
+        public BitArray AckArray { get; private set; } = new BitArray(32);
         public UInt16 AckNumber { get; private set; }
         public UInt16 SequenceNumber { get; private set; }
         
