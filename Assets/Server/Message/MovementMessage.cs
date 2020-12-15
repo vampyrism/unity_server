@@ -12,6 +12,11 @@ namespace Assets.Server
 {
     public class MovementMessage : Message
     {
+        public enum Action : byte {
+            MOVE,
+            STOP
+        }
+
         // Total size of message
         public static readonly int MESSAGE_SIZE = 29;
 

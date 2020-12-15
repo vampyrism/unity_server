@@ -17,6 +17,7 @@ public class Enemy : Character
 
     private Vector2 oldPosition;
     private int stuckCount;
+    private bool sentStopMessage;
 
     private float timestampForNextAttack;
 
@@ -114,9 +115,9 @@ public class Enemy : Character
         } else {
             stuckCount = 0;
         }
-        if (stuckCount > 3) {
+        if (stuckCount > 1) {
             StartCoroutine(LerpPosition((Vector2)currentPathTarget, Vector3.Distance(transform.position, currentPathTarget) /runSpeed));
-                
+            Debug.Log("Enemy lerped STUCK");
             stuckCount = 0;
         }
 
@@ -214,6 +215,7 @@ public class Enemy : Character
         if (transform.hasChanged)
         {
             transform.hasChanged = false;
+            this.sentStopMessage = false;
 
             base.X = body.position.x;
             base.Y = body.position.y;
@@ -233,11 +235,33 @@ public class Enemy : Character
             );
 
             UDPServer.getInstance().BroadcastMessage(m);
+        } else if (sentStopMessage == false) {
+            sentStopMessage = true;
+
+            base.X = body.position.x;
+            base.Y = body.position.y;
+
+            Assets.Server.MovementMessage m = new Assets.Server.MovementMessage(
+            0,
+            this.ID,
+            1,
+            0,
+            base.X,
+            base.Y,
+            base.Rotation,
+            0,
+            0
+            );
+
+            UDPServer.getInstance().BroadcastMessage(m);
+
         }
     }
     private void OnCollisionEnter2D(Collision2D other) {
         if (other.gameObject.GetComponent<Enemy>()) {
             if (pathVectorList != null) {
+
+                Debug.Log("Enemy lerped COLLISION");
                 Vector3 currentPathTarget = pathVectorList[currentPathIndex];
                 StartCoroutine(LerpPosition((Vector2)currentPathTarget, Vector3.Distance(transform.position, currentPathTarget) / runSpeed));
             }

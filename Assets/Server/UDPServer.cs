@@ -67,7 +67,7 @@ namespace Assets.Server
             
             // Clear disconnected clients every second
             ClearDisconnectedTimer = new System.Timers.Timer();
-            ClearDisconnectedTimer.Interval = 1000;
+            ClearDisconnectedTimer.Interval = 99999999;
             ClearDisconnectedTimer.Elapsed += (source, e) => ClearDisconnectedClients();
             ClearDisconnectedTimer.Enabled = true;
 
