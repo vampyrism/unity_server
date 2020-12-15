@@ -33,7 +33,7 @@ namespace Assets.Server
 
         public void Visit(AttackMessage m)
         {
-            GameState.instance.PlayerAttack(m.GetEntityId(), m.GetTargetEntityId(), m.GetWeaponType());
+            GameState.instance.PlayerAttack(m.GetEntityId(), m.GetTargetEntityId(), m.GetWeaponType(), m.GetAttackDirectionX(), m.GetAttackDirectionY());
             Debug.Log(m);
         }
 

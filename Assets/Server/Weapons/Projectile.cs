@@ -27,6 +27,7 @@ namespace Assets.Server
         }
 
         private void OnTriggerEnter2D(Collider2D collider) {
+
             Character hitCharacter = collider.GetComponent<Character>();
             if (hitCharacter != null) {
                 if (hitCharacter.name == "Player(Clone)") {
@@ -35,9 +36,10 @@ namespace Assets.Server
                 // Hit an Character
                 GameState.instance.AttackValid(hitCharacter.ID, projectileDamage);
                 Destroy(gameObject);
-            } else if (collider.name == "Collision_Default"){
+            } else if (collider.name == "Collision_Default") {
                 // Hit a wall
                 Debug.Log("Hit the wall");
+
                 Destroy(gameObject);
             }
 

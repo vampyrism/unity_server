@@ -76,7 +76,7 @@ public class Player : Character
         {
             animator.SetTrigger("Attack");
             equippedWeapon = weaponsList[weaponId].GetComponent<Weapon>();
-            equippedWeapon.MakeAttack(targetPosition, transform.position);
+            this.equippedWeapon.MakeAttack(targetPosition, transform.position);
             timestampForNextAction = Time.time + equippedWeapon.reloadSpeed;
 
         }
