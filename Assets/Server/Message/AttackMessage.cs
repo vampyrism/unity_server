@@ -37,9 +37,9 @@ namespace Assets.Server
         // 11-14 | Attack damage amount
         private static readonly int DAMAGE_AMOUNT = 11;
         // 15-18  | Attack vector direction
-        private static readonly int ATTACK_DIRECTION_X = 15;
+        private static readonly int ATTACK_POSITION_X = 15;
         // 19-22  | Attack vector direction
-        private static readonly int ATTACK_DIRECTION_Y = 19;
+        private static readonly int ATTACK_POSITION_Y = 19;
         // 23  | Attack initiated 0 for false 1 for true
         private static readonly int ATTACK_INITIATED = 24;
         // Byte array containing the information
@@ -58,7 +58,7 @@ namespace Assets.Server
             message[TYPE_ID] = ATTACK;
         }
 
-        public AttackMessage(short seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount, float attackDirectionX, float attackDirectionY, short attackInit)
+        public AttackMessage(short seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount, float attackPositionX, float attackPositionY, short attackInit)
         {
             message[TYPE_ID] = ATTACK;
             SetSequenceNumber(seqNum);
@@ -69,8 +69,8 @@ namespace Assets.Server
             SetWeaponType(weaponType);
             SetAttackValid(attackValid);
             SetDamageAmount(damageAmount);
-            SetAttackDirectionX(attackDirectionX);
-            SetAttackDirectionY(attackDirectionY);
+            SetAttackPositionX(attackPositionX);
+            SetAttackPositionY(attackPositionY);
             SetAttackInitiated(attackInit);
         }
 
@@ -112,13 +112,13 @@ namespace Assets.Server
         {
             Array.Copy(BitConverter.GetBytes(dmg), 0, message, DAMAGE_AMOUNT, 4);
         }
-        public void SetAttackDirectionX(float dirX)
+        public void SetAttackPositionX(float posX)
         {
-            Array.Copy(BitConverter.GetBytes(dirX), 0, message, ATTACK_DIRECTION_X, 4);
+            Array.Copy(BitConverter.GetBytes(posX), 0, message, ATTACK_POSITION_X, 4);
         }
-        public void SetAttackDirectionY(float dirY)
+        public void SetAttackPositionY(float posY)
         {
-            Array.Copy(BitConverter.GetBytes(dirY), 0, message, ATTACK_DIRECTION_Y, 4);
+            Array.Copy(BitConverter.GetBytes(posY), 0, message, ATTACK_POSITION_Y, 4);
         }
         public void SetAttackInitiated(short ati)
         {
@@ -135,8 +135,8 @@ namespace Assets.Server
         public short GetWeaponType() => BitConverter.ToInt16(message, WEAPON_TYPE);
         public short GetAttackValid() => BitConverter.ToInt16(message, ATTACK_VALID);
         public float GetDamageAmount() => BitConverter.ToSingle(message, DAMAGE_AMOUNT);
-        public float GetAttackDirectionX() => BitConverter.ToSingle(message, ATTACK_DIRECTION_X);
-        public float GetAttackDirectionY() => BitConverter.ToSingle(message, ATTACK_DIRECTION_Y);
+        public float GetAttackPositionX() => BitConverter.ToSingle(message, ATTACK_POSITION_X);
+        public float GetAttackPositionY() => BitConverter.ToSingle(message, ATTACK_POSITION_Y);
         public short GetAttackInitiated() => BitConverter.ToInt16(message, ATTACK_INITIATED);
         public override byte[] Serialize() => message;
 
@@ -153,8 +153,8 @@ namespace Assets.Server
             s += "Weapon Type    \t" + GetWeaponType() + "\n";
             s += "Attack Validity   \t" + GetAttackValid() + "\n";
             s += "Damage Amount\t" + GetDamageAmount() + "\n";
-            s += "Attack direction x\t" + GetAttackDirectionX() + "\n";
-            s += "Attack Direction y\t" + GetAttackDirectionY() + "\n";
+            s += "Attack direction x\t" + GetAttackPositionX() + "\n";
+            s += "Attack Direction y\t" + GetAttackPositionY() + "\n";
             s += "Attack Initiated\t" + GetAttackInitiated() + "\n";
             return s;
         }
