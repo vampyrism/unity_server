@@ -33,6 +33,10 @@ namespace Assets.Server
 
         }
 
+        private void OnDestroy() {
+            UDPServer.getInstance().Stop();
+        }
+
         void FixedUpdate()
         {
             while(this.TaskQueue.Count > 0)
@@ -62,5 +66,11 @@ namespace Assets.Server
         {
             
         }
+
+        public void ServerDestroyEntity(Entity e) {
+            Debug.Log("Inside serverdestroy");
+            Destroy(e.gameObject);
+        }
+
     }
 }

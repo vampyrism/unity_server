@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Assets.Server
 {
-    public sealed class GameState 
+    public sealed class GameState
     {
         public static readonly GameState instance = new GameState();
 
@@ -17,7 +17,7 @@ namespace Assets.Server
         public Dictionary<UInt32, Entity> Entities { get; private set; }
 
         // Time left of current day/night cycle
-        private DayNightCycle dayNightCycle;
+        public DayNightCycle dayNightCycle;
 
         private GameState()
         {
@@ -26,7 +26,7 @@ namespace Assets.Server
         }
 
 
-        public void FixedUpdate() 
+        public void FixedUpdate()
         {
             // Update game time
             dayNightCycle.FixedUpdate();
@@ -73,6 +73,14 @@ namespace Assets.Server
         public bool ContainsEntity(UInt32 id)
         {
             return Entities.ContainsKey(id);
+        }
+
+        public void RemoveEntity(UInt32 id)
+        {
+            if (ContainsEntity(id))
+            {
+                Entities.Remove(id);
+            }
         }
 
         // Game Updates
@@ -149,7 +157,7 @@ namespace Assets.Server
 
             if(Vector2.Distance(player.transform.position, new Vector2(x,y)) > 2)
             {
-                Debug.Log("Player " + id 
+                Debug.Log("Player " + id
                     + " (server pid=" + player.ID + " "
                     + " moved too fast (distance=" + Vector2.Distance(player.transform.position, new Vector2(x, y)));
                 player.ForceUpdateClientPosition();
@@ -161,7 +169,7 @@ namespace Assets.Server
             {
                 player.DirectMove(x, y, dx, dy);
                 player.LastUpdate = seq;
-            } 
+            }
             else if (Math.Abs(seq - player.LastUpdate) > UInt16.MaxValue / 4)
             {
                 player.DirectMove(x, y, dx, dy);
@@ -205,6 +213,16 @@ namespace Assets.Server
 
         }
 
-
+        public void DestroyEntityID(uint entityID) {
+            if (Entities.TryGetValue(entityID, out Entity e)) {
+                RemoveEntity(entityID);
+                Server.instance.TaskQueue.Enqueue(new Action(() => {
+                    Server.instance.ServerDestroyEntity(e);
+                }));
+            }
+            else {
+                Debug.Log("Trying to destroy entity ID: " + entityID + ", but couldn't find it.");
+            }
+        }
     }
 }
