@@ -59,7 +59,7 @@ public class Enemy : Character
             if (Vector3.Distance(transform.position, currentTarget.position) < enemyReach) {
                 // If we are close enough we try to attack it
                 if (Time.time >= timestampForNextAttack) {
-                    currentTarget.GetComponent<Character>().TakeDamage(enemyDamage);
+                    //currentTarget.GetComponent<Character>().TakeDamage(enemyDamage);
                     timestampForNextAttack = Time.time + enemyAttackSpeed;
                     body.velocity = new Vector3(0, 0, 0);
                 }

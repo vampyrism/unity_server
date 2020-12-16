@@ -13,7 +13,7 @@ namespace Assets.Server
     public class AttackMessage : Message
     {
         // Total size of message
-        public static readonly int MESSAGE_SIZE = 27;
+        public static readonly int MESSAGE_SIZE = 26;
 
         // Indices for the values in the message
         // Bytes   | Description
@@ -122,7 +122,7 @@ namespace Assets.Server
         }
         public void SetAttackInitiated(short ati)
         {
-            Array.Copy(BitConverter.GetBytes(ati), 0, message, SEQUENCE_NUMBER, 2);
+            Array.Copy(BitConverter.GetBytes(ati), 0, message, ATTACK_INITIATED, 2);
         }
 
         // Getters 

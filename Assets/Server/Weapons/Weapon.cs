@@ -10,7 +10,7 @@ public abstract class Weapon : Entity
     public float reloadSpeed;
     public bool isRanged;
 
-    public abstract void MakeAttack(Vector2 clickPosition, Vector2 myPosition);
+    public abstract void MakeAttack(uint attackingPlayerID,  Vector2 clickPosition, Vector2 myPosition);
 
     public override void DirectMove(float x, float y, float dx, float dy) {
         transform.position = new Vector2(x, y);

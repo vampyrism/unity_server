@@ -70,27 +70,18 @@ public class Player : Character
 
     }
 
-    public void TryToAttack(Vector2 targetPosition, int weaponId)
+    public void TryToAttack(Vector2 attackDirection, int weaponId)
     {
-        if (Time.time >= timestampForNextAction)
-        {
-            animator.SetTrigger("Attack");
-            equippedWeapon = weaponsList[weaponId].GetComponent<Weapon>();
-            this.equippedWeapon.MakeAttack(targetPosition, transform.position);
-            timestampForNextAction = Time.time + equippedWeapon.reloadSpeed;
-
-        }
-        else
-        {
-            Debug.Log("Trying to fire too fast");
-        }
+        Debug.Log("Inside player TryToAttack (in server)");
+        Debug.Log("weaponID: " + weaponId);
+        equippedWeapon = weaponsList[weaponId].GetComponent<Weapon>();
+        this.equippedWeapon.MakeAttack(this.ID, attackDirection, transform.position);
     }
 
 
     public override void TakeDamage(float damage)
     {
         Debug.Log("Player took " + damage + " damage!");
-        animator.SetTrigger("Hit");
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0)
         {

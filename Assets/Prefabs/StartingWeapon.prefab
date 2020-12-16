@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: startingWeapon
   weaponIndex: 0
-  weaponDamage: 1
+  weaponDamage: 2
   reloadSpeed: 1
   isRanged: 0
   attackRangeX: 0.8

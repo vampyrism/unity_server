@@ -16,7 +16,8 @@ public class StartingWeapon : Weapon
         this.isRanged = false;
     }
 
-    public override void MakeAttack(Vector2 clickPosition, Vector2 playerPosition) {
+    public override void MakeAttack(uint attackingPlayerID, Vector2 clickPosition, Vector2 playerPosition) {
+        Debug.Log("Inside StartingWeapon MakeAttack");
         Vector2 attackDirection = (clickPosition - (Vector2)playerPosition).normalized;
         Vector2 weaponBoxPosition = playerPosition + (attackDirection * weaponDistanceFromPlayer);
         weaponBoxPosition.y += offsetInYDirection;
@@ -30,7 +31,7 @@ public class StartingWeapon : Weapon
             // Did we hit a character
             if (hitCharacter != null) {
                 // Did we hit ourselves?
-                if (hitCharacter.name == "Player(Clone)") {
+                if (hitCharacter.ID == attackingPlayerID) {
                     continue;
                 }
                 // Hit an Character

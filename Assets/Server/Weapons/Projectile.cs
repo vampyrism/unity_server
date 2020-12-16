@@ -10,7 +10,9 @@ namespace Assets.Server
         //sender of the projectile
         public float moveSpeed = 20;
         private float projectileDamage;
-        public void Setup(Vector3 shootDirection, float weapondamage) {
+        private uint shooterID;
+        public void Setup(uint attackingPlayerID, Vector3 shootDirection, float weapondamage) {
+            shooterID = attackingPlayerID;
             projectileDamage = weapondamage;
             Rigidbody2D rigidbody2D = GetComponent<Rigidbody2D>();
             rigidbody2D.AddForce(shootDirection * moveSpeed, ForceMode2D.Impulse);
@@ -30,7 +32,7 @@ namespace Assets.Server
 
             Character hitCharacter = collider.GetComponent<Character>();
             if (hitCharacter != null) {
-                if (hitCharacter.name == "Player(Clone)") {
+                if (hitCharacter.ID == shooterID) {
                     return;
                 }
                 // Hit an Character
