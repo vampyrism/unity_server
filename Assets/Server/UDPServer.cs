@@ -26,25 +26,12 @@ namespace Assets.Server
 
         Dictionary<(String, int), Client> clients;
 
-        UInt16 remoteSeqNum = 0;
-        UInt16 localSeqNum = 0;
-
         Server server;
 
 
         private UDPServer()
         {
             this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
-            this.remoteSeqNum = 0;
-            this.localSeqNum = 0;
-        }
-
-        private void AckPacket(UInt16 seq)
-        {
-            if (remoteSeqNum < seq)
-            {
-                remoteSeqNum = seq;
-            }
         }
 
         public void Init(Server server)
@@ -169,10 +156,13 @@ namespace Assets.Server
                     //packet.AddMessage(m);
                     //res = packet.Serialize();
 
-                    UDPPacket p = c.NextPacket();
+                    c.FixedUpdate();
 
-                    this.socket.Send(p.Serialize(), p.Size, c.Endpoint);
-                    this.localSeqNum += 1;
+                    while (c.PacketQueue.Count > 0)
+                    {
+                        UDPPacket p = c.PacketQueue.Dequeue();
+                        this.socket.Send(p.Serialize(), p.Size, c.Endpoint);
+                    }
                 }
             }
             catch (Exception e)

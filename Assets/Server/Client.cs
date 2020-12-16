@@ -13,7 +13,7 @@ namespace Assets.Server
 
         #region outgoing_queues
         public Queue<Message> MessageQueue { get; private set; }
-        public List<UDPPacket> PacketQueue { get; private set; }
+        public Queue<UDPPacket> PacketQueue { get; private set; }
         #endregion
 
         #region sequence_numbers
@@ -23,7 +23,7 @@ namespace Assets.Server
 
         // Send and Receive buffers
         #region send_receive_buffers
-        private static readonly int BufferSize = 1024;
+        private static readonly UInt16 BufferSize = 1024;
         public UInt32[] ReceiveSequenceBuffer   { get; private set; } = new UInt32[BufferSize];
         public UInt32[] SendSequenceBuffer      { get; private set; } = new UInt32[BufferSize];
         public UDPAckPacket[] ReceiveBuffer     { get; private set; } = new UDPAckPacket[BufferSize];
@@ -38,7 +38,7 @@ namespace Assets.Server
             Debug.Log("Creating player entity!");
             this.Endpoint = endpoint;
             this.MessageQueue = new Queue<Message>();
-            this.PacketQueue = new List<UDPPacket>();
+            this.PacketQueue = new Queue<UDPPacket>();
             this.RemoteSeqNum = 0;
             this.LocalSeqNum = 0;
 
@@ -153,6 +153,25 @@ namespace Assets.Server
             }
         }
 
+        public void FixedUpdate()
+        {
+            UDPPacket p = this.NextPacket();
+            this.PacketQueue.Enqueue(p);
+
+            for(int i = 1; i <= 2; i++)
+            {
+                int index = (UInt16) (this.LocalSeqNum - (UInt16)(i * 15)) % BufferSize;
+
+                if(this.SendSequenceBuffer[index] == (UInt16) (this.LocalSeqNum - (UInt16)(i * 15)))
+                {
+                    if(!this.SendBuffer[index].Acked)
+                    {
+                        this.PacketQueue.Enqueue(this.SendBuffer[index].Packet);
+                    }
+                }
+            }    
+        }
+
         /// <summary>
         /// Builds a new packet and increments the local sequence ID or
         /// a packet that needs to be resent.
@@ -165,13 +184,13 @@ namespace Assets.Server
             UInt16 index = (UInt16)(this.RemoteSeqNum % BufferSize);
             for (UInt16 offset = 0; offset < 32; offset++)
             {
-                int i = index - offset;
+                int i = (index - offset);
                 if(i < 0)
                 {
                     i = BufferSize + i;
                 }
 
-                if (this.ReceiveSequenceBuffer[i] == this.RemoteSeqNum - offset)
+                if (this.ReceiveSequenceBuffer[i] == (UInt16)(this.RemoteSeqNum - offset))
                 {
                     if(this.ReceiveBuffer[i].Acked)
                     {

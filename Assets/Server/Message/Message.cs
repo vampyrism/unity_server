@@ -34,6 +34,9 @@ namespace Assets.Server
             return (Message) typeConstructors[type].DynamicInvoke(bytes, cursor);
         }
 
+        // Add packet sequence number when deserializing
+        public UInt16 SequenceNumber;
+
         // Abstract
 
         // Return an efficient representation of the message as byte array
