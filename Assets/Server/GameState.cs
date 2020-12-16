@@ -207,12 +207,6 @@ namespace Assets.Server
             UDPServer.getInstance().BroadcastMessage(newAttack);
         }
 
-        public void ItemPickup(UInt32 playerId, UInt32 itemId)
-        {
-
-
-        }
-
         public void DestroyEntityID(uint entityID) {
             if (Entities.TryGetValue(entityID, out Entity e)) {
                 RemoveEntity(entityID);
