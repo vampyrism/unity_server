@@ -35,7 +35,7 @@ namespace Assets.Server
         {
             Debug.Log("Inside AttackMessage Visit");
             Server.instance.TaskQueue.Enqueue(new Action(() => {
-                GameState.instance.PlayerAttack(m.GetEntityId(), m.GetTargetEntityId(), m.GetWeaponType(), m.GetAttackPositionX(), m.GetAttackPositionY());
+                GameState.instance.PlayerAttack(m.GetEntityId(), m.GetWeaponType(), m.GetAttackPositionX(), m.GetAttackPositionY());
                 Debug.Log(m);
             }));
             

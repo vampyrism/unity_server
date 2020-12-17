@@ -178,11 +178,13 @@ namespace Assets.Server
         }
 
         /// <summary>
-        /// Make <c>Player</c> attack another <c>Player</c>.
+        /// <c>Player</c> attack towards a direction.
         /// </summary>
         /// <param name="playerId">Id of attacking <c>Player</c>.</param>
-        /// <param name="targetId">Id of attacked <c>Player</c>.</param>
-        public void PlayerAttack(UInt32 playerId, UInt32 targetId, short weaponId, float clickPositionX, float clickPositionY)
+        /// <param name="weaponId">weaponId of attacking <c>Player</c>.</param>
+        /// <param name="clickPositionX">X position of the attack <c>Player</c>.</param>
+        /// <param name="clickPositionY">Y position of the attack<c>Player</c>.</param>
+        public void PlayerAttack(UInt32 playerId, short weaponId, float clickPositionX, float clickPositionY)
         {
             Debug.Log("Start of PlayerAttack");
             Vector2 clickPosition;
@@ -190,19 +192,44 @@ namespace Assets.Server
             clickPosition.y = clickPositionY;
 
             Player player = (Player) GetEntity(playerId);
-            //                                                                                  V Changed from 1 to 0
-            AttackMessage AttackInit = new AttackMessage(0, playerId, 0, 0, targetId, weaponId, 0, 0, clickPositionX, clickPositionY, 1);
+
+            AttackMessage AttackInit = new AttackMessage(0, playerId, 0, 0, 0, weaponId, 0, 0, clickPositionX, clickPositionY, 1);
             Debug.Log("Broadcasting in PlayerATtack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
 
             player.TryToAttack(clickPosition, weaponId);
         }
 
-        public void AttackValid(UInt32 targetPlayerId, float damageAmount, short weaponType)
+        /// <summary>
+        /// <c>Player</c> attack towards a direction.
+        /// </summary>
+        /// <param name="playerId">Id of attacking <c>Player</c>.</param>
+        /// <param name="weaponId">weaponId of attacking <c>Player</c>.</param>
+        /// <param name="clickPositionX">X position of the attack <c>Player</c>.</param>
+        /// <param name="clickPositionY">Y position of the attack<c>Player</c>.</param>
+        public void EnemyAttack(UInt32 enemyID, UInt32 targetPlayerID) {
+            Debug.Log("Start of EnemyAttack");
+
+            Enemy enemy = (Enemy)GetEntity(enemyID);
+            Player player = (Player)GetEntity(targetPlayerID);
+
+            AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, 0, 0, 0, 0, 0, 0, 1);
+            Debug.Log("Broadcasting in EnemyAttack");
+            UDPServer.getInstance().BroadcastMessage(AttackInit);
+
+            AttackValid(targetPlayerID, enemy.GetEnemyDamage());
+        }
+
+        /// <summary>
+        /// A character takes damage.
+        /// </summary>
+        /// <param name="targetCharacterID">Id of damaged <c>Player</c>.</param>
+        /// <param name="damageAmount">Amount of damage that the character takes.</param>
+        public void AttackValid(UInt32 targetCharacterID, float damageAmount)
         {
-            Character targetEntity = (Character) GetEntity(targetPlayerId);
+            Character targetEntity = (Character) GetEntity(targetCharacterID);
             targetEntity.TakeDamage(damageAmount);
-            AttackMessage newAttack = new AttackMessage(0, targetPlayerId, 0, 0, 0, weaponType, 1, damageAmount, 0, 0, 0);
+            AttackMessage newAttack = new AttackMessage(0, targetCharacterID, 0, 0, 0, 0, 1, damageAmount, 0, 0, 0);
             //targetEntity.Client.MessageQueue.Enqueue(newAttack);
             UDPServer.getInstance().BroadcastMessage(newAttack);
         }

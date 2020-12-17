@@ -36,7 +36,7 @@ namespace Assets.Server
                     return;
                 }
                 // Hit an Character (1 for ranged attack)
-                GameState.instance.AttackValid(hitCharacter.ID, projectileDamage, (short)1);
+                GameState.instance.AttackValid(hitCharacter.ID, projectileDamage);
                 Destroy(gameObject);
             } else if (collider.name == "Collision_Default") {
                 // Hit a wall
