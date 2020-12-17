@@ -198,11 +198,11 @@ namespace Assets.Server
             player.TryToAttack(clickPosition, weaponId);
         }
 
-        public void AttackValid(UInt32 targetPlayerId, float damageAmount)
+        public void AttackValid(UInt32 targetPlayerId, float damageAmount, short weaponType)
         {
             Character targetEntity = (Character) GetEntity(targetPlayerId);
             targetEntity.TakeDamage(damageAmount);
-            AttackMessage newAttack = new AttackMessage(0, targetPlayerId, 0, 0, 0, 0, 1, damageAmount, 0, 0, 0);
+            AttackMessage newAttack = new AttackMessage(0, targetPlayerId, 0, 0, 0, weaponType, 1, damageAmount, 0, 0, 0);
             //targetEntity.Client.MessageQueue.Enqueue(newAttack);
             UDPServer.getInstance().BroadcastMessage(newAttack);
         }

@@ -34,7 +34,7 @@ namespace Assets.Server
         Server server;
 
         // Time until client get kicked out (in seconds)
-        public static readonly int MAX_WAIT_TIME = 10;
+        public static readonly int MAX_WAIT_TIME = 999999;
         private System.Timers.Timer ClearDisconnectedTimer;
 
         private CancellationTokenSource tokenSource;

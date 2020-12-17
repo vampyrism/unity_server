@@ -34,8 +34,8 @@ public class StartingWeapon : Weapon
                 if (hitCharacter.ID == attackingPlayerID) {
                     continue;
                 }
-                // Hit an Character
-                Assets.Server.GameState.instance.AttackValid(hitCharacter.ID, weaponDamage);
+                // Hit an Character (0 for melee attack)
+                Assets.Server.GameState.instance.AttackValid(hitCharacter.ID, weaponDamage, 0);
             }
             else if (hitTargets[i].name == "Collision_Default") {
                 // Hit a wall
