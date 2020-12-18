@@ -8,11 +8,11 @@ namespace Assets.Server
     public class Projectile : MonoBehaviour
     {
         //sender of the projectile
-        public uint senderId;
         public float moveSpeed = 20;
         private float projectileDamage;
-        public void Setup(Vector3 shootDirection, float weapondamage, uint playerId) {
-            senderId = playerId;
+        private uint shooterID;
+        public void Setup(uint attackingPlayerID, Vector3 shootDirection, float weapondamage) {
+            shooterID = attackingPlayerID;
             projectileDamage = weapondamage;
             Rigidbody2D rigidbody2D = GetComponent<Rigidbody2D>();
             rigidbody2D.AddForce(shootDirection * moveSpeed, ForceMode2D.Impulse);
@@ -29,18 +29,19 @@ namespace Assets.Server
         }
 
         private void OnTriggerEnter2D(Collider2D collider) {
+
             Character hitCharacter = collider.GetComponent<Character>();
             if (hitCharacter != null) {
-                if (hitCharacter.name == "Player(Clone)") {
+                if (hitCharacter.ID == shooterID) {
                     return;
                 }
-                // Hit an Character
-                //GameState.instance.AttackValid(hitCharacter.ID);
-                //hitCharacter.TakeDamage(projectileDamage);
+                // Hit an Character (1 for ranged attack)
+                GameState.instance.AttackValid(hitCharacter.ID, projectileDamage);
                 Destroy(gameObject);
-            } else if (collider.name == "Collision_Default"){
+            } else if (collider.name == "Collision_Default") {
                 // Hit a wall
                 Debug.Log("Hit the wall");
+
                 Destroy(gameObject);
             }
 

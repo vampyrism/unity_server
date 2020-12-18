@@ -34,7 +34,7 @@ public class Enemy : Character
         body = GetComponent<Rigidbody2D>();
 
         // Removed while using a simpler way of finding all players
-        /* 
+        /*
         GameObject[] PlayerGameObjectList = GameObject.FindGameObjectsWithTag("Player");
         targetList = new List<Transform>();
         foreach (GameObject OtherPlayerGameObject in PlayerGameObjectList) {
@@ -66,7 +66,7 @@ public class Enemy : Character
                 if (Vector3.Distance(transform.position, currentTarget.position) < enemyReach) {
                     // If we are close enough we try to attack it
                     if (Time.time >= timestampForNextAttack) {
-                        currentTarget.GetComponent<Character>().TakeDamage(enemyDamage);
+                        GameState.instance.EnemyAttack(this.ID, currentTarget.GetComponent<Character>().ID);
                         timestampForNextAttack = Time.time + enemyAttackSpeed;
                         body.velocity = new Vector3(0, 0, 0);
                         pathVectorList = null;
@@ -116,7 +116,7 @@ public class Enemy : Character
         }
         if (stuckCount > 3) {
             StartCoroutine(LerpPosition((Vector2)currentPathTarget, Vector3.Distance(transform.position, currentPathTarget) /runSpeed));
-                
+
             stuckCount = 0;
         }
 
@@ -181,7 +181,7 @@ public class Enemy : Character
     }
     private void SelectTarget() {
         float closestDistance = float.MaxValue;
-        
+
         GameObject[] PlayerGameObjectList = GameObject.FindGameObjectsWithTag("Player");
         targetList = new List<Transform>();
         foreach (GameObject OtherPlayerGameObject in PlayerGameObjectList) {
@@ -207,6 +207,10 @@ public class Enemy : Character
             yield return null;
         }
         transform.position = targetPosition;
+    }
+
+    public float GetEnemyDamage() {
+        return this.enemyDamage;
     }
 
     private void FixedUpdate()

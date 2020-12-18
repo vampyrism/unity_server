@@ -93,12 +93,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd788d7e4a6558b408cbb694930de65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5
-  currentHealth: 5
-  runSpeed: 8
-  minDistance: 2
+  maxHealth: 20
+  currentHealth: 20
+  runSpeed: 5
+  minDistance: 1
   enemyReach: 2
-  enemyDamage: 2
+  enemyDamage: 1
   enemyAttackSpeed: 0.5
   currentPathIndex: 0
   vampireIsDayDebugOverride: 0
