@@ -18,9 +18,9 @@ public class Crossbow : Weapon
         this.isRanged = true;
     }
 
-    public override void MakeAttack(Vector2 clickPosition, Vector2 spawnPosition, uint playerId) {
+    public override void MakeAttack(uint attackingPlayerID, Vector2 clickPosition, Vector2 spawnPosition) {
         Vector2 attackDirection = (clickPosition - (Vector2)spawnPosition).normalized;
         Transform projectileTransform = Instantiate(projectile, spawnPosition, Quaternion.identity);
-        projectileTransform.GetComponent<Assets.Server.Projectile>().Setup(attackDirection, weaponDamage, playerId);
+        projectileTransform.GetComponent<Assets.Server.Projectile>().Setup(attackingPlayerID, attackDirection, weaponDamage);
     }
 }

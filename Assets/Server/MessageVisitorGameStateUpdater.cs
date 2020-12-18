@@ -33,8 +33,12 @@ namespace Assets.Server
 
         public void Visit(AttackMessage m)
         {
-            GameState.instance.PlayerAttack(m.GetEntityId(), m.GetTargetEntityId(), m.GetWeaponType());
-            Debug.Log(m);
+            Debug.Log("Inside AttackMessage Visit");
+            Server.instance.TaskQueue.Enqueue(new Action(() => {
+                GameState.instance.PlayerAttack(m.GetEntityId(), m.GetWeaponType(), m.GetAttackPositionX(), m.GetAttackPositionY());
+                Debug.Log(m);
+            }));
+            
         }
 
         public void Visit(EntityUpdateMessage m)
