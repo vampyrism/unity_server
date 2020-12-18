@@ -97,9 +97,9 @@ MonoBehaviour:
   currentHealth: 20
   runSpeed: 5
   minDistance: 1
-  enemyReach: 2
-  enemyDamage: 1
-  enemyAttackSpeed: 0.5
+  enemyReach: 1.5
+  enemyDamage: 0
+  enemyAttackSpeed: 1.5
   currentPathIndex: 0
   vampireIsDayDebugOverride: 0
   vampireIsDay: 0

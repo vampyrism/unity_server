@@ -90,6 +90,12 @@ namespace Assets.Server
             {
                 Switch();
                 BroadcastState();
+                foreach (KeyValuePair<UInt32, Entity> kvp in GameState.instance.Entities) {
+                    if (kvp.Value is Enemy) {
+                        Enemy e = (Enemy)kvp.Value;
+                        e.SetVampireDay(this.IsDay);
+                    }
+                }
             }
         }
     }
