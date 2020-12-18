@@ -152,13 +152,13 @@ namespace Assets.Server
                 return;
             }
 
-            if(player.LastUpdate > seq && Math.Abs(player.LastUpdate - seq) < UInt16.MaxValue / 4)
+            if(player.LastUpdate < seq || Math.Abs(player.LastUpdate - seq) > UInt16.MaxValue / 4)
             {
-                return;
+                player.LastUpdate = seq;
             } 
             else
             {
-                player.LastUpdate = seq;
+                return;
             }
 
             if(Vector2.Distance(player.transform.position, new Vector2(x,y)) > 2)

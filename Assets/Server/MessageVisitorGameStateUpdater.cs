@@ -23,7 +23,7 @@ namespace Assets.Server
                             m.GetYVelocity());*/
             
                 GameState.instance.PlayerMove(m.GetEntityId(),
-                                              m.SequenceNumber,
+                                              m.GetSequenceNumber(),
                                               m.GetXCoordinate(), 
                                               m.GetYCoordinate(), 
                                               m.GetXVelocity(), 

@@ -184,7 +184,8 @@ namespace Assets.Server
             UInt16 index = (UInt16)(this.RemoteSeqNum % BufferSize);
             for (UInt16 offset = 0; offset < 32; offset++)
             {
-                int i = (index - offset);
+                int i = (UInt16)(this.RemoteSeqNum - (UInt16)offset) % BufferSize;
+
                 if(i < 0)
                 {
                     i = BufferSize + i;
