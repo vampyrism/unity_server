@@ -11,7 +11,7 @@ public class Enemy : Character
 
     [SerializeField] private float runSpeed = 8f;
     [SerializeField] private float minDistance = 2f;
-    [SerializeField] private float enemyReach = 2f;
+    [SerializeField] private float enemyReach = 1.5f;
     [SerializeField] private float enemyDamage = 2f;
     [SerializeField] private float enemyAttackSpeed = 0.5f;
 
@@ -55,10 +55,6 @@ public class Enemy : Character
 
     void Update()
     {
-        if (vampireIsDayDebugOverride != true) {
-            vampireIsDay = GameState.instance.dayNightCycle.IsDay;
-        }
-
         if (vampireIsDay == false) {
             // Night behaviour
             if (currentTarget != null) {
@@ -148,6 +144,7 @@ public class Enemy : Character
         if (currentHealth <= 0) {
             Destroy(gameObject);
         }
+        vampireIsDay = false;
     }
 
     public void RemovePlayerFromTargets(Transform removedPlayer) {
@@ -211,6 +208,12 @@ public class Enemy : Character
 
     public float GetEnemyDamage() {
         return this.enemyDamage;
+    }
+
+    public void SetVampireDay(bool isDay) {
+        if (vampireIsDayDebugOverride != true) {
+            vampireIsDay = isDay;
+        }
     }
 
     private void FixedUpdate()
