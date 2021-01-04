@@ -62,7 +62,7 @@ public class Player : Character
     public override void DirectMove(float x, float y, float dx, float dy)
     {
         this.transform.position = new Vector2(x, y);
-        body.AddForce(new Vector2(dx, dy), ForceMode2D.Impulse);
+        //body.AddForce(new Vector2(dx, dy), ForceMode2D.Impulse);
     }
 
     public void GrabObject()
@@ -70,26 +70,23 @@ public class Player : Character
 
     }
 
-    public void TryToAttack(Vector2 targetPosition, int weaponId, uint playerId)
+    public void TryToAttack(Vector2 attackDirection, int weaponId)
     {
-        if (Time.time >= timestampForNextAction)
-        {
-            animator.SetTrigger("Attack");
-            equippedWeapon = weaponsList[weaponId].GetComponent<Weapon>();
-            equippedWeapon.MakeAttack(targetPosition, transform.position, playerId);
-            timestampForNextAction = Time.time + equippedWeapon.reloadSpeed;
-
-        }
-        else
-        {
-            Debug.Log("Trying to fire too fast");
-        }
+        Debug.Log("Inside player TryToAttack (in server)");
+        Debug.Log("weaponID: " + weaponId);
+        equippedWeapon = weaponsList[weaponId].GetComponent<Weapon>();
+        this.equippedWeapon.MakeAttack(this.ID, attackDirection, transform.position);
     }
 
 
     public override void TakeDamage(float damage)
     {
-
+        Debug.Log("Player took " + damage + " damage!");
+        currentHealth = currentHealth - damage;
+        if (currentHealth <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

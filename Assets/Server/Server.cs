@@ -33,6 +33,10 @@ namespace Assets.Server
 
         }
 
+        private void OnDestroy() {
+            UDPServer.getInstance().Stop();
+        }
+
         void FixedUpdate()
         {
             while(this.TaskQueue.Count > 0)

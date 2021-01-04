@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Server
 {
-    public class Client
+    public class Client : IDisposable
     {
         #region attributes
         public IPEndPoint Endpoint { get; private set; }
@@ -32,6 +32,12 @@ namespace Assets.Server
         #endregion
 
         public GameObject Player { get; private set; }
+        public UInt32 PlayerID { get; private set; }
+
+        // Time when this client last made contact to server
+        public DateTime LastContact { get; private set; }
+
+        private bool disposed = false;
 
         public Client(IPEndPoint endpoint)
         {
@@ -41,6 +47,7 @@ namespace Assets.Server
             this.PacketQueue = new Queue<UDPPacket>();
             this.RemoteSeqNum = 0;
             this.LocalSeqNum = 0;
+            this.LastContact = DateTime.Now;
 
             #region initialize_send_receive_buffers
             for (int i = 0; i < BufferSize; i++)
@@ -125,25 +132,25 @@ namespace Assets.Server
                 }
 
                 //this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
-                UInt32 playerID = GameState.instance.CreatePlayer(this, 50, 50);
+                this.PlayerID = GameState.instance.CreatePlayer(this, 50, 50);
                 //Server.instance.Entities.TryAdd(this.Player.GetComponent<Player>().ID, this.Player.GetComponent<Player>());
 
-                Debug.Log("Entity id is " + playerID);
+                Debug.Log("Entity id is " + this.PlayerID);
 
                 EntityUpdateMessage NewClient = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.PLAYER,
                     EntityUpdateMessage.Action.CREATE,
-                    playerID
+                    this.PlayerID
                     );
                 UDPServer.getInstance().BroadcastMessage(NewClient);
 
-                MovementMessage ClientMovement = new MovementMessage(0, playerID, 0, 0, 0, 0, 0, 0, 0);
+                MovementMessage ClientMovement = new MovementMessage(0, this.PlayerID, 0, 0, 0, 0, 0, 0, 0);
                 UDPServer.getInstance().BroadcastMessage(ClientMovement);
 
                 EntityUpdateMessage control = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.PLAYER,
                     EntityUpdateMessage.Action.CONTROL,
-                    playerID
+                    this.PlayerID
                     );
                 this.SendMessage(control);
             }
@@ -170,6 +177,12 @@ namespace Assets.Server
                     }
                 }
             }    
+        }
+        
+        // Update time when client last made contact
+        public void MadeContact()
+        {
+            this.LastContact = DateTime.Now;
         }
 
         /// <summary>
@@ -296,6 +309,37 @@ namespace Assets.Server
             {
                 return new UDPAckPacket { Acked = false, SendTime = 0, Packet = null };
             }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        
+        protected virtual void Dispose(bool disposing)
+        {
+            if(!this.disposed)
+            {
+                // If disposing equals true, dispose all managed and unmanaged resources.
+                if(disposing)
+                {
+                    GameState.instance.DestroyEntityID(this.PlayerID);
+                    EntityUpdateMessage message = new EntityUpdateMessage(
+                        EntityUpdateMessage.Type.PLAYER,
+                        EntityUpdateMessage.Action.DELETE,
+                        this.PlayerID
+                        );
+                    UDPServer.getInstance().BroadcastMessage(message);
+                }
+                
+                disposed = true;
+            }
+        }
+
+        ~Client()
+        {
+            Dispose(false);
         }
     }
 }

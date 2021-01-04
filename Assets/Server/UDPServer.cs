@@ -6,7 +6,9 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -28,10 +30,29 @@ namespace Assets.Server
 
         Server server;
 
+        // Time until client get kicked out (in seconds)
+        public static readonly int MAX_WAIT_TIME = 999999;
+        private System.Timers.Timer ClearDisconnectedTimer;
+
+        private CancellationTokenSource tokenSource;
+        private CancellationToken token;
 
         private UDPServer()
         {
             this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
+            this.remoteSeqNum = 0;
+            this.localSeqNum = 0;
+
+            this.tokenSource = new CancellationTokenSource();
+            this.token = tokenSource.Token;
+        }
+
+        private void AckPacket(UInt16 seq)
+        {
+            if (remoteSeqNum < seq)
+            {
+                remoteSeqNum = seq;
+            }
         }
 
         public void Init(Server server)
@@ -40,11 +61,17 @@ namespace Assets.Server
             this.socket = new UdpClient(serverEndpoint);
             this.clients = new Dictionary<(string, int), Client>();
             Debug.Log("Started socket on port " + 9000);
+            
+            // Clear disconnected clients every second
+            ClearDisconnectedTimer = new System.Timers.Timer();
+            ClearDisconnectedTimer.Interval = 1000;
+            ClearDisconnectedTimer.Elapsed += (source, e) => ClearDisconnectedClients();
+            ClearDisconnectedTimer.Enabled = true;
 
             // Server main thread
             Task.Run(() =>
             {
-                while (true)
+                while (!token.IsCancellationRequested)
                 {
                     try
                     {
@@ -98,12 +125,38 @@ namespace Assets.Server
                         Debug.LogError(e);
                     }
                 }
+
+                Debug.Log("Shutting down...");
             });
+        }
+
+        public void Stop() 
+        {
+            this.tokenSource.Cancel();
+            this.socket.Close();
+        }
+
+        // This will be called intermittently in order to clear dead connnections
+        public void ClearDisconnectedClients()
+        {
+            DateTime now = DateTime.Now;
+            foreach (var cursor in this.clients)
+            {   
+                Client client = cursor.Value;
+                int wait = now.Subtract(client.LastContact).Seconds;
+                if (wait > MAX_WAIT_TIME)
+                {
+                    client.Dispose();
+                    this.clients.Remove(cursor.Key);
+                }
+            }
+            this.ClearDisconnectedTimer.Enabled = !this.token.IsCancellationRequested;
         }
 
         public void HandleRawPacket(byte[] data, String ip, int port)
         {
-            // AckIncomingPacket(pcktseq);
+
+            this.clients[(ip, port)].MadeContact();
 
             UDPPacket packet = new UDPPacket(data);
 

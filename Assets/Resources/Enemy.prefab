@@ -47,18 +47,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.08747482, y: -0.26512146}
+  m_Offset: {x: -0.02222782, y: -0.01342016}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.56, y: 2.56}
-    newSize: {x: 2.56, y: 2.56}
+    oldSize: {x: 4, y: 4}
+    newSize: {x: 4, y: 4}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 1
   serializedVersion: 2
-  m_Size: {x: 1.4361572, y: 2.749733}
+  m_Size: {x: 1.566651, y: 2.190395}
   m_EdgeRadius: 0
 --- !u!50 &546481475594392265
 Rigidbody2D:
@@ -72,7 +72,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 10000
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 0
@@ -93,14 +93,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd788d7e4a6558b408cbb694930de65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5
-  currentHealth: 5
-  runSpeed: 8
-  minDistance: 2
-  enemyReach: 2
-  enemyDamage: 2
-  enemyAttackSpeed: 0.5
+  maxHealth: 20
+  currentHealth: 20
+  runSpeed: 5
+  minDistance: 1
+  enemyReach: 1.5
+  enemyDamage: 0
+  enemyAttackSpeed: 1.5
   currentPathIndex: 0
+  vampireIsDayDebugOverride: 0
+  vampireIsDay: 0
 --- !u!212 &546481475594392276
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -140,12 +142,13 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 15
-  m_Sprite: {fileID: 21300000, guid: 3b175bfca731be1488fc29c7cd9271e4, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: -5687666349546342197, guid: 6cd2dab4ec737574282342f81879ce0d,
+    type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.56, y: 2.56}
+  m_Size: {x: 4, y: 4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
