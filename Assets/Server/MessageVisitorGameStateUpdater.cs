@@ -55,6 +55,11 @@ namespace Assets.Server
             }
         }
 
+        public void Visit(PlayerUpdateMessage m)
+        {
+            Debug.Log("Got player update message");
+        }
+
         public void Visit(Message m) { Debug.Log(m); }
     }
 }
