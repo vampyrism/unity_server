@@ -146,6 +146,7 @@ public class Enemy : Character
         Debug.Log("Enemy took " + damage + " damage!");
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0) {
+            GameState.instance.EntityKilled(this.ID, damage);
             Destroy(gameObject);
         }
     }
