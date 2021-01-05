@@ -63,6 +63,10 @@ public class Enemy : Character
                     // If we are close enough we try to attack it
                     if (Time.time >= timestampForNextAttack) {
                         GameState.instance.EnemyAttack(this.ID, currentTarget.GetComponent<Character>().ID);
+
+                        IEnumerator coroutine = DelayDamage(0.5f, currentTarget.GetComponent<Character>().ID);
+                        StartCoroutine(coroutine);
+
                         timestampForNextAttack = Time.time + enemyAttackSpeed;
                         body.velocity = new Vector3(0, 0, 0);
                         pathVectorList = null;
@@ -92,6 +96,11 @@ public class Enemy : Character
                 UpdatePath();
             }
         }
+    }
+
+    private IEnumerator DelayDamage(float waitTime, UInt32 targetPlayerID) {
+        yield return new WaitForSeconds(waitTime);
+        GameState.instance.AttackValid(targetPlayerID, this.enemyDamage);
     }
 
     public void HandleMovement() {
