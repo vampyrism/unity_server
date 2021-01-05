@@ -42,7 +42,6 @@ namespace Assets.Server
 
         private UDPServer()
         {
-            this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
             this.remoteSeqNum = 0;
             this.localSeqNum = 0;
 
@@ -58,12 +57,13 @@ namespace Assets.Server
             }
         }
 
-        public void Init(Server server)
+        public void Init(Server server, int server_port)
         {
+            this.serverEndpoint = new IPEndPoint(IPAddress.Any, server_port);
             this.server = server;
             this.socket = new UdpClient(serverEndpoint);
             this.clients = new Dictionary<(string, int), Client>();
-            Debug.Log("Started socket on port " + 9000);
+            Debug.Log("Started socket on port " + server_port);
             
             // Clear disconnected clients every second
             ClearDisconnectedTimer = new System.Timers.Timer();

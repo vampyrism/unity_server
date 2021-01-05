@@ -15,6 +15,7 @@ namespace Assets.Server
         protected static readonly byte ATTACK = 2;
         protected static readonly byte ENTITY_UPDATE = 3;
         protected static readonly byte STATE_UPDATE = 4;
+        protected static readonly byte PLAYER_UPDATE = 5;
 
         // Factory dictionary for message types
         private static readonly Dictionary<byte, Func<byte[], int, Message>> typeConstructors = 
@@ -24,7 +25,8 @@ namespace Assets.Server
             { PICKUP,           (byte[] bytes, int cursor) => new ItemPickupMessage(bytes, cursor) },
             { ATTACK,           (byte[] bytes, int cursor) => new AttackMessage(bytes, cursor) },
             { ENTITY_UPDATE,    (byte[] bytes, int cursor) => new EntityUpdateMessage(bytes, cursor) },
-            { STATE_UPDATE,     (byte[] bytes, int cursor) => new StateUpdateMessage(bytes, cursor) }
+            { STATE_UPDATE,     (byte[] bytes, int cursor) => new StateUpdateMessage(bytes, cursor) },
+            { PLAYER_UPDATE,    (byte[] bytes, int cursor) => new PlayerUpdateMessage(bytes, cursor) }
         };
 
         // Parse bytes and return appropriate Message type
@@ -33,6 +35,8 @@ namespace Assets.Server
             byte type = bytes[cursor];
             return (Message) typeConstructors[type].DynamicInvoke(bytes, cursor);
         }
+
+        public UInt16 SequenceNumber;
 
         // Abstract
 
