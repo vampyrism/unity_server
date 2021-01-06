@@ -155,6 +155,20 @@ namespace Assets.Server
         {
             Player player = (Player) GetEntity(id);
 
+            if(!player)
+            {
+                return;
+            }
+
+            if(player.LastUpdate < seq || Math.Abs(player.LastUpdate - seq) > UInt16.MaxValue / 4)
+            {
+                player.LastUpdate = seq;
+            } 
+            else
+            {
+                return;
+            }
+
             if(Vector2.Distance(player.transform.position, new Vector2(x,y)) > 2)
             {
                 Debug.Log("Player " + id

@@ -28,9 +28,6 @@ namespace Assets.Server
 
         Dictionary<(String, int), Client> clients;
 
-        UInt16 remoteSeqNum = 0;
-        UInt16 localSeqNum = 0;
-
         Server server;
 
         // Time until client get kicked out (in seconds)
@@ -158,11 +155,16 @@ namespace Assets.Server
 
         public void HandleRawPacket(byte[] data, String ip, int port)
         {
-            // AckPacket(pcktseq);
-            
+
             this.clients[(ip, port)].MadeContact();
 
             UDPPacket packet = new UDPPacket(data);
+
+            #region ackpacket
+            bool s = this.clients.TryGetValue((ip, port), out Client c);
+            if (!s) throw new Exception("Unable to find client");
+            c.AckIncomingPacket(packet);
+            #endregion
 
             List<Message> messages = packet.GetMessages();
             try
@@ -207,15 +209,18 @@ namespace Assets.Server
                     //packet.AddMessage(m);
                     //res = packet.Serialize();
 
-                    UDPPacket p = c.NextPacket();
+                    c.FixedUpdate();
 
-                    this.socket.Send(p.Serialize(), p.Size, c.Endpoint);
-                    this.localSeqNum += 1;
+                    while (c.PacketQueue.Count > 0)
+                    {
+                        UDPPacket p = c.PacketQueue.Dequeue();
+                        this.socket.Send(p.Serialize(), p.Size, c.Endpoint);
+                    }
                 }
             }
             catch (Exception e)
             {
-                Debug.Log("Exception from send task: " + e.Message);
+                Debug.Log("Exception from send task: " + e.Message + "\n stack trace:\n" + e.StackTrace);
             }
         }
     }

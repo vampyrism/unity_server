@@ -1,23 +1,35 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditor;
-using UnityEditor.Build.Player;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Assets.Server
 {
     public class Client : IDisposable
     {
+        #region attributes
         public IPEndPoint Endpoint { get; private set; }
+
+        #region outgoing_queues
         public Queue<Message> MessageQueue { get; private set; }
-        public List<UDPPacket> PacketQueue { get; private set; }
+        public Queue<UDPPacket> PacketQueue { get; private set; }
+        #endregion
+
+        #region sequence_numbers
         public UInt16 RemoteSeqNum { get; private set; }
         public UInt16 LocalSeqNum { get; private set; }
+        #endregion
+
+        // Send and Receive buffers
+        #region send_receive_buffers
+        private static readonly UInt16 BufferSize = 1024;
+        public UInt32[] ReceiveSequenceBuffer   { get; private set; } = new UInt32[BufferSize];
+        public UInt32[] SendSequenceBuffer      { get; private set; } = new UInt32[BufferSize];
+        public UDPAckPacket[] ReceiveBuffer     { get; private set; } = new UDPAckPacket[BufferSize];
+        public UDPAckPacket[] SendBuffer        { get; private set; } = new UDPAckPacket[BufferSize];
+        #endregion
+        #endregion
 
         public GameObject Player { get; private set; }
         public UInt32 PlayerID { get; private set; }
@@ -32,10 +44,18 @@ namespace Assets.Server
             Debug.Log("Creating player entity!");
             this.Endpoint = endpoint;
             this.MessageQueue = new Queue<Message>();
-            this.PacketQueue = new List<UDPPacket>();
+            this.PacketQueue = new Queue<UDPPacket>();
             this.RemoteSeqNum = 0;
             this.LocalSeqNum = 0;
             this.LastContact = DateTime.Now;
+
+            #region initialize_send_receive_buffers
+            for (int i = 0; i < BufferSize; i++)
+            {
+                this.ReceiveSequenceBuffer[i] = 0xFFFFFFFF;
+                this.SendSequenceBuffer[i] = 0xFFFFFFFF;
+            }
+            #endregion
 
             Server.instance.TaskQueue.Enqueue(new Action(() => { this.Init(); }));
         }
@@ -79,22 +99,27 @@ namespace Assets.Server
                     }
 
                     if (kv.Value.GetType() == typeof(Bow) || kv.Value.GetType() == typeof(Crossbow))
-                   {
+                    {
                         EntityUpdateMessage entity = null;
                         Weapon e = (Weapon)kv.Value;
-                        if (e.GetType() == typeof(Bow)) {
+                        if (e.GetType() == typeof(Bow)) 
+                        {
                             entity = new EntityUpdateMessage(
                                 EntityUpdateMessage.Type.WEAPON_BOW,
                                 EntityUpdateMessage.Action.CREATE,
                                 kv.Key
                                 );
-                        } else if ( e.GetType() == typeof(Crossbow)) {
+                        } 
+                        else if ( e.GetType() == typeof(Crossbow)) 
+                        {
                             entity = new EntityUpdateMessage(
                                 EntityUpdateMessage.Type.WEAPON_CROSSBOW,
                                 EntityUpdateMessage.Action.CREATE,
                                 kv.Key
                                 );
-                        } else {
+                        } 
+                        else 
+                        {
                             throw new Exception("Weapon type not found");
                         }
                         Debug.Log("Creating a weapon move message with x: " + e.X + " y: " + e.Y);
@@ -135,17 +160,70 @@ namespace Assets.Server
             }
         }
 
+        public void FixedUpdate()
+        {
+            UDPPacket p = this.NextPacket();
+            this.PacketQueue.Enqueue(p);
+
+            for(int i = 1; i <= 2; i++)
+            {
+                int index = (UInt16) (this.LocalSeqNum - (UInt16)(i * 15)) % BufferSize;
+
+                if(this.SendSequenceBuffer[index] == (UInt16) (this.LocalSeqNum - (UInt16)(i * 15)))
+                {
+                    if(!this.SendBuffer[index].Acked)
+                    {
+                        this.PacketQueue.Enqueue(this.SendBuffer[index].Packet);
+                    }
+                }
+            }    
+        }
+        
         // Update time when client last made contact
         public void MadeContact()
         {
             this.LastContact = DateTime.Now;
         }
-        
-        
 
+        /// <summary>
+        /// Builds a new packet and increments the local sequence ID or
+        /// a packet that needs to be resent.
+        /// </summary>
+        /// <returns>UDPPacket to be sent</returns>
         public UDPPacket NextPacket()
         {
-            return BuildPacket(new UDPPacket());
+            UDPPacket p = BuildPacket(new UDPPacket(this.LocalSeqNum, this.RemoteSeqNum));
+
+            UInt16 index = (UInt16)(this.RemoteSeqNum % BufferSize);
+            for (UInt16 offset = 0; offset < 32; offset++)
+            {
+                int i = (UInt16)(this.RemoteSeqNum - (UInt16)offset) % BufferSize;
+
+                if(i < 0)
+                {
+                    i = BufferSize + i;
+                }
+
+                if (this.ReceiveSequenceBuffer[i] == (UInt16)(this.RemoteSeqNum - offset))
+                {
+                    if(this.ReceiveBuffer[i].Acked)
+                    {
+                        p.AckPacket((UInt16)(this.RemoteSeqNum - offset));
+                    }
+                }
+            }
+
+            this.SendBuffer[this.LocalSeqNum % BufferSize] = new UDPAckPacket { 
+                Acked = false,
+                SendTime = Time.realtimeSinceStartup, // Note: we care about diff between send-ACK time for RTT calc
+                Packet = p
+            };
+
+            this.SendSequenceBuffer[this.LocalSeqNum % BufferSize] = this.LocalSeqNum;
+
+            this.LocalSeqNum += 1;
+
+            return p;
         }
 
         /// <summary>
@@ -172,9 +250,65 @@ namespace Assets.Server
             this.MessageQueue.Enqueue(m);
         }
 
-        public void AckPacket(UInt16 remoteSeqNum)
+        private int WrapArray(int a)
         {
+            if (a < 0)
+            {
+                return BufferSize + a;
+            }
+            else
+            {
+                return a;
+            }
+        }
 
+        /// <summary>
+        /// Acks incoming packet
+        /// </summary>
+        /// <param name="packet">the packet to ack</param>
+        public void AckIncomingPacket(UDPPacket packet)
+        {
+            int i = packet.SequenceNumber % BufferSize;
+            
+            if(packet.SequenceNumber > this.RemoteSeqNum)
+            {
+                this.RemoteSeqNum = packet.SequenceNumber;
+            }
+
+            this.ReceiveSequenceBuffer[i] = packet.SequenceNumber;
+            this.ReceiveBuffer[i].Acked = true;
+            this.ReceiveBuffer[i].Packet = packet;
+
+
+            i = packet.AckNumber % BufferSize;
+            if (this.SendSequenceBuffer[i] == packet.AckNumber)
+            {
+                this.SendBuffer[i].Acked = true;
+            }
+
+            for (UInt16 offset = 1; offset <= 32; offset++)
+            {
+                if(packet.AckArray[offset - 1])
+                {
+                    if(this.SendSequenceBuffer[WrapArray((packet.AckNumber - offset) % BufferSize)] == (packet.AckNumber - offset))
+                    {
+                        this.SendBuffer[WrapArray((packet.AckNumber - offset) % BufferSize)].Acked = true;
+                    }
+                }
+            }
+        }
+
+        public UDPAckPacket GetSentPacket(UInt16 SequenceNumber)
+        {
+            int i = SequenceNumber % BufferSize;
+            if (this.SendSequenceBuffer[i] == SequenceNumber)
+            {
+                return this.SendBuffer[i];
+            } 
+            else
+            {
+                return new UDPAckPacket { Acked = false, SendTime = 0, Packet = null };
+            }
         }
 
         public void Dispose()
