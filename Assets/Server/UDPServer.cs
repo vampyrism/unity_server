@@ -40,19 +40,9 @@ namespace Assets.Server
         private UDPServer()
         {
             this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
-            this.remoteSeqNum = 0;
-            this.localSeqNum = 0;
 
             this.tokenSource = new CancellationTokenSource();
             this.token = tokenSource.Token;
-        }
-
-        private void AckPacket(UInt16 seq)
-        {
-            if (remoteSeqNum < seq)
-            {
-                remoteSeqNum = seq;
-            }
         }
 
         public void Init(Server server)
