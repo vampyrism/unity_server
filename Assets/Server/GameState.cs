@@ -220,6 +220,34 @@ namespace Assets.Server
             AttackValid(targetPlayerID, enemy.GetEnemyDamage());
         }
 
+        public void UpdateEntityHp(UInt32 entityID)
+        {
+            for(UInt32 i = 0; i <= this.Entities.Count; i++)
+            {
+                if (this.Entities[i].GetType() == typeof(Player))
+                {
+                    Player player = (Player)this.Entities[i];
+                    EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
+                        EntityUpdateMessage.Type.PLAYER, 
+                        EntityUpdateMessage.Action.HP_UPDATE,
+                        this.Entities[i].ID,
+                        player.currentHealth); 
+                }
+
+                if (this.Entities[i].GetType() == typeof(Enemy))
+                {
+                    Enemy enemy = (Enemy)this.Entities[i]; 
+                    EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
+                        EntityUpdateMessage.Type.PLAYER, 
+                        EntityUpdateMessage.Action.HP_UPDATE,
+                        this.Entities[i].ID,
+                        enemy.currentHealth);
+                }
+
+               
+            }
+        }
+
         /// <summary>
         /// A character takes damage.
         /// </summary>

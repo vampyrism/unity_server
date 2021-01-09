@@ -5,7 +5,6 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditor.Build.Player;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -56,7 +55,8 @@ namespace Assets.Server
                         EntityUpdateMessage entity = new EntityUpdateMessage(
                             EntityUpdateMessage.Type.PLAYER,
                             EntityUpdateMessage.Action.CREATE,
-                            kv.Key
+                            kv.Key,
+                            0
                             );
                         MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
@@ -70,12 +70,24 @@ namespace Assets.Server
                         EntityUpdateMessage entity = new EntityUpdateMessage(
                             EntityUpdateMessage.Type.ENEMY,
                             EntityUpdateMessage.Action.CREATE,
-                            kv.Key
+                            kv.Key,
+                            0
                             );
                         MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
+                    }
+
+                    if (kv.Value.GetType() == typeof(Character))
+                    {
+                        Character character = (Character)kv.Value;
+                        EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
+                            EntityUpdateMessage.Type.PLAYER, 
+                            EntityUpdateMessage.Action.HP_UPDATE,
+                            kv.Value.ID,
+                            character.currentHealth);
+                        this.SendMessage(hpUpdate);
                     }
 
                     if (kv.Value.GetType() == typeof(Bow) || kv.Value.GetType() == typeof(Crossbow))
@@ -86,13 +98,15 @@ namespace Assets.Server
                             entity = new EntityUpdateMessage(
                                 EntityUpdateMessage.Type.WEAPON_BOW,
                                 EntityUpdateMessage.Action.CREATE,
-                                kv.Key
+                                kv.Key,
+                                0
                                 );
                         } else if ( e.GetType() == typeof(Crossbow)) {
                             entity = new EntityUpdateMessage(
                                 EntityUpdateMessage.Type.WEAPON_CROSSBOW,
                                 EntityUpdateMessage.Action.CREATE,
-                                kv.Key
+                                kv.Key,
+                                0
                                 );
                         } else {
                             throw new Exception("Weapon type not found");
@@ -115,7 +129,8 @@ namespace Assets.Server
                 EntityUpdateMessage NewClient = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.PLAYER,
                     EntityUpdateMessage.Action.CREATE,
-                    this.PlayerID
+                    this.PlayerID,
+                    0
                     );
                 UDPServer.getInstance().BroadcastMessage(NewClient);
 
@@ -125,7 +140,8 @@ namespace Assets.Server
                 EntityUpdateMessage control = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.PLAYER,
                     EntityUpdateMessage.Action.CONTROL,
-                    this.PlayerID
+                    this.PlayerID,
+                    0
                     );
                 this.SendMessage(control);
             }
@@ -194,7 +210,8 @@ namespace Assets.Server
                     EntityUpdateMessage message = new EntityUpdateMessage(
                         EntityUpdateMessage.Type.PLAYER,
                         EntityUpdateMessage.Action.DELETE,
-                        this.PlayerID
+                        this.PlayerID,
+                        0
                         );
                     UDPServer.getInstance().BroadcastMessage(message);
                 }

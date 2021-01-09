@@ -29,7 +29,8 @@ namespace Assets.Server
         {
             CREATE,
             DELETE,
-            CONTROL
+            CONTROL,
+            HP_UPDATE
         }
 
         public static readonly int MESSAGE_SIZE = 8; // TODO: Wrong!
@@ -38,6 +39,7 @@ namespace Assets.Server
         public static readonly int ENTITY_TYPE = 1;
         public static readonly int ENTITY_ACTION = 3;
         public static readonly int ENTITY_ID = 4;
+        public static readonly int ENTITY_HP = 5;
 
         private byte[] message = new byte[MESSAGE_SIZE];
 
@@ -51,12 +53,13 @@ namespace Assets.Server
             Array.Copy(bytes, cursor, message, 0, MESSAGE_SIZE);
         }
 
-        public EntityUpdateMessage(Type type, Action action, UInt32 id)
+        public EntityUpdateMessage(Type type, Action action, UInt32 id, float hp)
         {
             message[TYPE_ID] = ENTITY_UPDATE;
             SetEntityType(type);
             SetEntityAction(action);
             SetEntityID(id);
+            SetEntityHP(hp);
         }
 
 
@@ -86,6 +89,10 @@ namespace Assets.Server
             Array.Copy(BitConverter.GetBytes(id), 0, message, ENTITY_ID, 4);
         }
 
+        public void SetEntityHP(float hp)
+        {
+            Array.Copy(BitConverter.GetBytes(hp), 0, message, ENTITY_HP, 4);
+        }
 
         // Getters
         public Type GetEntityType()
@@ -103,6 +110,10 @@ namespace Assets.Server
             return BitConverter.ToUInt32(message, ENTITY_ID);
         }
 
+        public UInt32 GetEntityHP()
+        {
+            return BitConverter.ToUInt16(message, ENTITY_HP);
+        }
         public override byte[] Serialize() => this.message;
 
         public override int Size() => MESSAGE_SIZE;
@@ -114,6 +125,7 @@ namespace Assets.Server
             s += "Entity type \t" + Enum.GetName(typeof(Type), GetEntityType()) + "\n";
             s += "Entity action \t" + Enum.GetName(typeof(Action), GetEntityAction()) + "\n";
             s += "Entity ID \t" + GetEntityID();
+            s += "Entity HP \t" + GetEntityHP();
 
             return s;
         }
