@@ -33,7 +33,7 @@ namespace Assets.Server
             HP_UPDATE
         }
 
-        public static readonly int MESSAGE_SIZE = 8; // TODO: Wrong!
+        public static readonly int MESSAGE_SIZE = 10; // TODO: Wrong!
 
         public static readonly int TYPE_ID = 0;
         public static readonly int ENTITY_TYPE = 1;
