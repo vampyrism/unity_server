@@ -39,7 +39,7 @@ namespace Assets.Server
 
         private UDPServer()
         {
-            this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
+            this.serverEndpoint = new IPEndPoint(IPAddress.Any, Server.port);
             this.tokenSource = new CancellationTokenSource();
             this.token = tokenSource.Token;
         }

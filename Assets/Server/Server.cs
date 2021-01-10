@@ -10,8 +10,8 @@ namespace Assets.Server
 {
     public class Server : MonoBehaviour
     {
-        public string lobbyManager = "https://fearhour.lynk.sh";
-        public int port = 9001;
+        public static string lobbyManager = "http://localhost:4000";
+        public static int port = 9001;
 
         public static Server instance;
         // TODO: Should be a ConcurrentQueue
@@ -23,10 +23,10 @@ namespace Assets.Server
         // Start is called before the first frame update
         void Start()
         {
-            Debug.Log("Starting server on port " + this.port + "...");
+            Debug.Log("Starting server on port " + port + "...");
             
-            Debug.Log("Registering with lobbymanager... (" + this.lobbyManager + ")");
-            UnityWebRequest wr = UnityWebRequest.Post(this.lobbyManager + "/api/lobby/new/" + this.port, "");
+            Debug.Log("Registering with lobbymanager... (" + lobbyManager + ")");
+            UnityWebRequest wr = UnityWebRequest.Post(lobbyManager + "/api/lobby/new/" + port, "");
             wr.SendWebRequest();
             while (!wr.isDone) ;
             try
@@ -51,7 +51,7 @@ namespace Assets.Server
 
 
             Debug.Log("Listening for new connections...");
-            UDPServer.getInstance().Init(this, this.port);
+            UDPServer.getInstance().Init(this, port);
             Debug.Log("Loading complete");
         }
 
@@ -102,7 +102,7 @@ namespace Assets.Server
 
         public void Heartbeat()
         {
-            UnityWebRequest wr = UnityWebRequest.Post(this.lobbyManager + "/api/lobby/heartbeat/" + this.lobby.id, "");
+            UnityWebRequest wr = UnityWebRequest.Post(lobbyManager + "/api/lobby/heartbeat/" + this.lobby.id, "");
             wr.SendWebRequest();
             while (!wr.isDone);
 
