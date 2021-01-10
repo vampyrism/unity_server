@@ -33,13 +33,26 @@ namespace Assets.Server
 
         public void Visit(AttackMessage m)
         {
-            GameState.instance.PlayerAttack(m.GetEntityId(), m.GetTargetEntityId(), m.GetWeaponType());
-            Debug.Log(m);
+            Debug.Log("Inside AttackMessage Visit");
+            Server.instance.TaskQueue.Enqueue(new Action(() => {
+                GameState.instance.PlayerAttack(m.GetEntityId(), m.GetWeaponType(), m.GetAttackPositionX(), m.GetAttackPositionY());
+                Debug.Log(m);
+            }));
+            
         }
 
         public void Visit(EntityUpdateMessage m)
         {
             Debug.Log(m);
+        }
+
+        public void Visit(ItemPickupMessage m) {
+            Entity item;
+            if (GameState.instance.Entities.TryGetValue(m.GetPickupItemId(), out item)) {
+                m.SetPickupConfirmed(1);
+                UDPServer.getInstance().BroadcastMessage(m);
+                GameState.instance.DestroyEntityID(m.GetPickupItemId());
+            }
         }
 
         public void Visit(Message m) { Debug.Log(m); }
