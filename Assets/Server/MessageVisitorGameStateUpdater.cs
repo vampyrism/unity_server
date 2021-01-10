@@ -43,6 +43,12 @@ namespace Assets.Server
 
         public void Visit(EntityUpdateMessage m)
         {
+            if((m.GetEntityType() == EntityUpdateMessage.Type.PLAYER || 
+                m.GetEntityType() == EntityUpdateMessage.Type.ENEMY) &&
+                m.GetEntityAction() == EntityUpdateMessage.Action.CREATE)
+            {
+            }
+
             Debug.Log(m);
         }
 

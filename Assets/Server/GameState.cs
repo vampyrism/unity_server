@@ -227,9 +227,39 @@ namespace Assets.Server
             Enemy enemy = (Enemy)GetEntity(enemyID);
             Player player = (Player)GetEntity(targetPlayerID);
 
-            AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, targetPlayerID, 0, 0, 0, player.X, player.Y, 1, 0);
+            AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0);
             Debug.Log("Broadcasting in EnemyAttack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
+
+            AttackValid(targetPlayerID, enemy.GetEnemyDamage());
+        }
+
+        public void UpdateEntityHp(UInt32 entityID)
+        {
+            for(UInt32 i = 0; i <= this.Entities.Count; i++)
+            {
+                if (this.Entities[i].GetType() == typeof(Player))
+                {
+                    Player player = (Player)this.Entities[i];
+                    EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
+                        EntityUpdateMessage.Type.PLAYER, 
+                        EntityUpdateMessage.Action.HP_UPDATE,
+                        this.Entities[i].ID,
+                        player.currentHealth); 
+                }
+
+                if (this.Entities[i].GetType() == typeof(Enemy))
+                {
+                    Enemy enemy = (Enemy)this.Entities[i]; 
+                    EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
+                        EntityUpdateMessage.Type.PLAYER, 
+                        EntityUpdateMessage.Action.HP_UPDATE,
+                        this.Entities[i].ID,
+                        enemy.currentHealth);
+                }
+
+               
+            }
         }
 
         /// <summary>
@@ -251,6 +281,7 @@ namespace Assets.Server
             AttackMessage newAttack = new AttackMessage(0, entityID, 0, 0, 0, 0, 1, damageAmount, 0, 0, 0, 0);
             UDPServer.getInstance().BroadcastMessage(newAttack);
         }
+
 
         public void DestroyEntityID(uint entityID) {
             if (Entities.TryGetValue(entityID, out Entity e)) {

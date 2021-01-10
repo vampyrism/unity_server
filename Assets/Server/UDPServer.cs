@@ -51,7 +51,7 @@ namespace Assets.Server
             this.socket = new UdpClient(serverEndpoint);
             this.clients = new Dictionary<(string, int), Client>();
             Debug.Log("Started socket on port " + 9000);
-            
+
             // Clear disconnected clients every second
             ClearDisconnectedTimer = new System.Timers.Timer();
             ClearDisconnectedTimer.Interval = 1000;
@@ -91,7 +91,7 @@ namespace Assets.Server
                                 Client c;
                                 this.clients.TryGetValue((ip, port), out c);
                                 this.server.NewClient(c);
-                            } 
+                            }
                             else
                             {
                                 // Initiate client locally since they are reconnecting
@@ -110,7 +110,7 @@ namespace Assets.Server
                             continue;
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Debug.LogError(e);
                     }
@@ -120,7 +120,7 @@ namespace Assets.Server
             });
         }
 
-        public void Stop() 
+        public void Stop()
         {
             this.tokenSource.Cancel();
             this.socket.Close();
@@ -131,7 +131,7 @@ namespace Assets.Server
         {
             DateTime now = DateTime.Now;
             foreach (var cursor in this.clients)
-            {   
+            {
                 Client client = cursor.Value;
                 int wait = now.Subtract(client.LastContact).Seconds;
                 if (wait > MAX_WAIT_TIME)
@@ -153,20 +153,20 @@ namespace Assets.Server
             #region ackpacket
             bool s = this.clients.TryGetValue((ip, port), out Client c);
             if (!s) throw new Exception("Unable to find client");
-            c.AckIncomingPacket(packet);
+            //c.AckIncomingPacket(packet);
             #endregion
 
             List<Message> messages = packet.GetMessages();
             try
             {
                 this.server.HandleMessages(messages);
-            } 
-            catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Debug.LogError("Exception when handling messages: " + e.Message);
             }
         }
-        
+
 
         /// <summary>
         /// Adds <c>Message</c> to all Clients message queue
@@ -174,14 +174,14 @@ namespace Assets.Server
         /// <param name="m"></param>
         public void BroadcastMessage(Message m)
         {
-            foreach(var cursor in this.clients)
+            foreach (var cursor in this.clients)
             {
                 Client cursorValue = cursor.Value;
                 cursorValue.MessageQueue.Enqueue(m);
-/*              UDPPacket packetToSend = new UDPPacket();
-                packetToSend.AddMessage(m);
-                byte[] res = packetToSend.Serialize();
-                this.socket.Send(res, res.Length, cursorValue.Endpoint);*/
+                /*              UDPPacket packetToSend = new UDPPacket();
+                                packetToSend.AddMessage(m);
+                                byte[] res = packetToSend.Serialize();
+                                this.socket.Send(res, res.Length, cursorValue.Endpoint);*/
             }
         }
 
@@ -199,12 +199,12 @@ namespace Assets.Server
                     //packet.AddMessage(m);
                     //res = packet.Serialize();
 
-                    c.FixedUpdate();
+                    //c.FixedUpdate();
 
                     while (c.PacketQueue.Count > 0)
                     {
-                        UDPPacket p = c.PacketQueue.Dequeue();
-                        this.socket.Send(p.Serialize(), p.Size, c.Endpoint);
+                        //UDPPacket p = c.PacketQueue.Dequeue();
+                        //this.socket.Send(p.Serialize(), p.Size, c.Endpoint);
                     }
                 }
             }
