@@ -85,6 +85,7 @@ public class Player : Character
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0)
         {
+            GameState.instance.HandleKilledEntity(damage, this.ID);
             Destroy(gameObject);
         }
     }

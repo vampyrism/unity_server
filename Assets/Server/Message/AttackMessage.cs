@@ -13,7 +13,7 @@ namespace Assets.Server
     public class AttackMessage : Message
     {
         // Total size of message
-        public static readonly int MESSAGE_SIZE = 26;
+        public static readonly int MESSAGE_SIZE = 28;
 
         // Indices for the values in the message
         // Bytes   | Description
@@ -42,6 +42,8 @@ namespace Assets.Server
         private static readonly int ATTACK_POSITION_Y = 19;
         // 23  | Attack initiated 0 for false 1 for true
         private static readonly int ATTACK_INITIATED = 24;
+        // 24  | Entity killed 0 for false 1 for true
+        private static readonly int ENTITY_KILLED = 25;
         // Byte array containing the information
 
         private byte[] message = new byte[MESSAGE_SIZE];
@@ -58,7 +60,7 @@ namespace Assets.Server
             message[TYPE_ID] = ATTACK;
         }
 
-        public AttackMessage(short seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount, float attackPositionX, float attackPositionY, short attackInit)
+        public AttackMessage(short seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount, float attackPositionX, float attackPositionY, short attackInit, short entityKilled)
         {
             message[TYPE_ID] = ATTACK;
             SetSequenceNumber(seqNum);
@@ -72,6 +74,7 @@ namespace Assets.Server
             SetAttackPositionX(attackPositionX);
             SetAttackPositionY(attackPositionY);
             SetAttackInitiated(attackInit);
+            SetEntityKilled(entityKilled);
         }
 
         // The Setters will convert the argument to bytes and copy them into the message buffer
@@ -124,6 +127,10 @@ namespace Assets.Server
         {
             Array.Copy(BitConverter.GetBytes(ati), 0, message, ATTACK_INITIATED, 2);
         }
+        public void SetEntityKilled(short ek)
+        {
+            Array.Copy(BitConverter.GetBytes(ek), 0, message, ENTITY_KILLED, 2);
+        }
 
         // Getters 
 
@@ -138,6 +145,7 @@ namespace Assets.Server
         public float GetAttackPositionX() => BitConverter.ToSingle(message, ATTACK_POSITION_X);
         public float GetAttackPositionY() => BitConverter.ToSingle(message, ATTACK_POSITION_Y);
         public short GetAttackInitiated() => BitConverter.ToInt16(message, ATTACK_INITIATED);
+        public short GetEntityKilled() => BitConverter.ToInt16(message, ENTITY_KILLED);
         public override byte[] Serialize() => message;
 
         public override int Size() => MESSAGE_SIZE;
@@ -156,6 +164,7 @@ namespace Assets.Server
             s += "Attack direction x\t" + GetAttackPositionX() + "\n";
             s += "Attack Direction y\t" + GetAttackPositionY() + "\n";
             s += "Attack Initiated\t" + GetAttackInitiated() + "\n";
+            s += "Entity Killed\t" + GetEntityKilled() + "\n";
             return s;
         }
 

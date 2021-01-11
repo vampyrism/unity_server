@@ -29,15 +29,17 @@ namespace Assets.Server
         {
             CREATE,
             DELETE,
-            CONTROL
+            CONTROL,
+            HP_UPDATE
         }
 
-        public static readonly int MESSAGE_SIZE = 8; // TODO: Wrong!
+        public static readonly int MESSAGE_SIZE = 10; // TODO: Wrong!
 
         public static readonly int TYPE_ID = 0;
         public static readonly int ENTITY_TYPE = 1;
         public static readonly int ENTITY_ACTION = 3;
         public static readonly int ENTITY_ID = 4;
+        public static readonly int ENTITY_HP = 5;
 
         private byte[] message = new byte[MESSAGE_SIZE];
 
@@ -51,24 +53,25 @@ namespace Assets.Server
             Array.Copy(bytes, cursor, message, 0, MESSAGE_SIZE);
         }
 
-        public EntityUpdateMessage(Type type, Action action, UInt32 id)
+        public EntityUpdateMessage(Type type, Action action, UInt32 id, float hp)
         {
             message[TYPE_ID] = ENTITY_UPDATE;
             SetEntityType(type);
             SetEntityAction(action);
             SetEntityID(id);
+            SetEntityHP(hp);
         }
 
 
         // Setters
         public void SetEntityType(Type type)
         {
-            if(!Enum.IsDefined(typeof(Type), type))
+            if (!Enum.IsDefined(typeof(Type), type))
             {
                 throw new ArgumentOutOfRangeException("Entity type " + type + " does not exist");
             }
 
-            Array.Copy(BitConverter.GetBytes((UInt16) type), 0, message, ENTITY_TYPE, 2);
+            Array.Copy(BitConverter.GetBytes((UInt16)type), 0, message, ENTITY_TYPE, 2);
         }
 
         public void SetEntityAction(Action action)
@@ -78,7 +81,7 @@ namespace Assets.Server
                 throw new ArgumentOutOfRangeException("Entity action " + action + " is not implemented");
             }
 
-            Array.Copy(BitConverter.GetBytes((byte) action), 0, message, ENTITY_ACTION, 1);
+            Array.Copy(BitConverter.GetBytes((byte)action), 0, message, ENTITY_ACTION, 1);
         }
 
         public void SetEntityID(UInt32 id)
@@ -86,16 +89,20 @@ namespace Assets.Server
             Array.Copy(BitConverter.GetBytes(id), 0, message, ENTITY_ID, 4);
         }
 
+        public void SetEntityHP(float hp)
+        {
+            Array.Copy(BitConverter.GetBytes(hp), 0, message, ENTITY_HP, 4);
+        }
 
         // Getters
         public Type GetEntityType()
         {
-            return (Type) BitConverter.ToUInt16(message, ENTITY_TYPE);
+            return (Type)BitConverter.ToUInt16(message, ENTITY_TYPE);
         }
 
         public Action GetEntityAction()
         {
-            return (Action) message[ENTITY_ACTION];
+            return (Action)message[ENTITY_ACTION];
         }
 
         public UInt32 GetEntityID()
@@ -103,6 +110,10 @@ namespace Assets.Server
             return BitConverter.ToUInt32(message, ENTITY_ID);
         }
 
+        public UInt32 GetEntityHP()
+        {
+            return BitConverter.ToUInt16(message, ENTITY_HP);
+        }
         public override byte[] Serialize() => this.message;
 
         public override int Size() => MESSAGE_SIZE;
@@ -114,6 +125,7 @@ namespace Assets.Server
             s += "Entity type \t" + Enum.GetName(typeof(Type), GetEntityType()) + "\n";
             s += "Entity action \t" + Enum.GetName(typeof(Action), GetEntityAction()) + "\n";
             s += "Entity ID \t" + GetEntityID();
+            s += "Entity HP \t" + GetEntityHP();
 
             return s;
         }

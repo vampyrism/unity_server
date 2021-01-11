@@ -207,7 +207,7 @@ namespace Assets.Server
 
             Player player = (Player) GetEntity(playerId);
 
-            AttackMessage AttackInit = new AttackMessage(0, playerId, 0, 0, 0, weaponId, 0, 0, clickPositionX, clickPositionY, 1);
+            AttackMessage AttackInit = new AttackMessage(0, playerId, 0, 0, 0, weaponId, 0, 0, clickPositionX, clickPositionY, 1, 0);
             Debug.Log("Broadcasting in PlayerATtack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
 
@@ -227,7 +227,7 @@ namespace Assets.Server
             Enemy enemy = (Enemy)GetEntity(enemyID);
             Player player = (Player)GetEntity(targetPlayerID);
 
-            AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, targetPlayerID, 0, 0, 0, player.X, player.Y, 1);
+            AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, targetPlayerID, 0, 0, 0, player.X, player.Y, 1, 0);
             Debug.Log("Broadcasting in EnemyAttack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
         }
@@ -241,10 +241,17 @@ namespace Assets.Server
         {
             Character targetEntity = (Character) GetEntity(targetCharacterID);
             targetEntity.TakeDamage(damageAmount);
-            AttackMessage newAttack = new AttackMessage(0, targetCharacterID, 0, 0, 0, 0, 1, damageAmount, 0, 0, 0);
+            AttackMessage newAttack = new AttackMessage(0, targetCharacterID, 0, 0, 0, 0, 1, damageAmount, 0, 0, 0, 0);
             //targetEntity.Client.MessageQueue.Enqueue(newAttack);
             UDPServer.getInstance().BroadcastMessage(newAttack);
         }
+
+        public void HandleKilledEntity(float damageAmount, UInt32 entityID)
+        {
+            AttackMessage newAttack = new AttackMessage(0, entityID, 0, 0, 0, 0, 1, damageAmount, 0, 0, 0, 0);
+            UDPServer.getInstance().BroadcastMessage(newAttack);
+        }
+
 
         public void DestroyEntityID(uint entityID) {
             if (Entities.TryGetValue(entityID, out Entity e)) {
