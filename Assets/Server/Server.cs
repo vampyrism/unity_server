@@ -10,7 +10,7 @@ namespace Assets.Server
 {
     public class Server : MonoBehaviour
     {
-        public static string lobbyManager = "http://localhost:4000";
+        public static string lobbyManager = "http://lobby.vampyrism.dev.deltafault.com";
         public static int port = 9001;
 
         public static Server instance;
