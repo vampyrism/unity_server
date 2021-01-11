@@ -61,6 +61,8 @@ public class Player : Character
 
     public override void DirectMove(float x, float y, float dx, float dy)
     {
+        base.DX = dx;
+        base.DY = dy;
         this.transform.position = new Vector2(x, y);
         //body.AddForce(new Vector2(dx, dy), ForceMode2D.Impulse);
     }
@@ -106,8 +108,8 @@ public class Player : Character
 
             base.X = body.position.x;
             base.Y = body.position.y;
-            base.DX = body.velocity.x;
-            base.DY = body.velocity.y;
+            //base.DX = body.velocity.x;
+            //base.DY = body.velocity.y;
 
             Assets.Server.MovementMessage m = new Assets.Server.MovementMessage(
             0,
