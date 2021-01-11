@@ -60,6 +60,18 @@ namespace Assets.Server
             Server.instance.TaskQueue.Enqueue(new Action(() => { this.Init(); }));
         }
 
+        private void UpdateHP(KeyValuePair<UInt32, Entity> kv)
+        {
+            Character character = (Character)kv.Value;
+            EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
+                EntityUpdateMessage.Type.PLAYER,
+                EntityUpdateMessage.Action.HP_UPDATE,
+                kv.Value.ID,
+                character.currentHealth);
+            this.SendMessage(hpUpdate);
+            Debug.Log("hello");
+        }
+
         /// <summary>
         /// Initializes Player, must be run on the main thread
         /// </summary>
@@ -84,6 +96,7 @@ namespace Assets.Server
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
+                        this.UpdateHP(kv);
                     }
 
                     if (kv.Value.GetType() == typeof(Enemy))
@@ -99,6 +112,7 @@ namespace Assets.Server
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
+                        this.UpdateHP(kv);
                     }
 
                     if (kv.Value.GetType() == typeof(Bow) || kv.Value.GetType() == typeof(Crossbow))
@@ -133,19 +147,6 @@ namespace Assets.Server
                         this.SendMessage(entity);
                         this.SendMessage(move);
                     }
-
-                    if (kv.Value.GetType().IsSubclassOf(typeof(Character)))
-                    {
-                        Character character = (Character)kv.Value;
-                        EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
-                            EntityUpdateMessage.Type.PLAYER,
-                            EntityUpdateMessage.Action.HP_UPDATE,
-                            kv.Value.ID,
-                            character.currentHealth);
-                        this.SendMessage(hpUpdate);
-                        Debug.Log("hello");
-                    }
-
                 }
 
                 //this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);

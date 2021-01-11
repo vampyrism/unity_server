@@ -33,13 +33,13 @@ namespace Assets.Server
             HP_UPDATE
         }
 
-        public static readonly int MESSAGE_SIZE = 10; // TODO: Wrong!
+        public static readonly int MESSAGE_SIZE = 12; // TODO: Wrong!
 
         public static readonly int TYPE_ID = 0;
         public static readonly int ENTITY_TYPE = 1;
         public static readonly int ENTITY_ACTION = 3;
         public static readonly int ENTITY_ID = 4;
-        public static readonly int ENTITY_HP = 5;
+        public static readonly int ENTITY_HP = 8;
 
         private byte[] message = new byte[MESSAGE_SIZE];
 
@@ -110,9 +110,9 @@ namespace Assets.Server
             return BitConverter.ToUInt32(message, ENTITY_ID);
         }
 
-        public UInt32 GetEntityHP()
+        public float GetEntityHP()
         {
-            return BitConverter.ToUInt16(message, ENTITY_HP);
+            return BitConverter.ToSingle(message, ENTITY_HP);
         }
         public override byte[] Serialize() => this.message;
 
@@ -124,7 +124,7 @@ namespace Assets.Server
             s += "Entity Update Message\n";
             s += "Entity type \t" + Enum.GetName(typeof(Type), GetEntityType()) + "\n";
             s += "Entity action \t" + Enum.GetName(typeof(Action), GetEntityAction()) + "\n";
-            s += "Entity ID \t" + GetEntityID();
+            s += "Entity ID \t" + GetEntityID() + "\n";
             s += "Entity HP \t" + GetEntityHP();
 
             return s;
