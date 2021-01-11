@@ -70,16 +70,6 @@ namespace Assets.Server
                 // Update gamestate of current client
                 foreach (KeyValuePair<UInt32, Entity> kv in GameState.instance.Entities)
                 {
-                    if (kv.Value.GetType() == typeof(Character))
-                    {
-                        Character character = (Character)kv.Value;
-                        EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
-                            EntityUpdateMessage.Type.PLAYER,
-                            EntityUpdateMessage.Action.HP_UPDATE,
-                            kv.Value.ID,
-                            character.currentHealth);
-                        this.SendMessage(hpUpdate);
-                    }
 
                     if (kv.Value.GetType() == typeof(Player)) // TODO: Create all entities, not just player
                     {
@@ -142,6 +132,18 @@ namespace Assets.Server
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
+                    }
+
+                    if (kv.Value.GetType().IsSubclassOf(typeof(Character)))
+                    {
+                        Character character = (Character)kv.Value;
+                        EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
+                            EntityUpdateMessage.Type.PLAYER,
+                            EntityUpdateMessage.Action.HP_UPDATE,
+                            kv.Value.ID,
+                            character.currentHealth);
+                        this.SendMessage(hpUpdate);
+                        Debug.Log("hello");
                     }
 
                 }
