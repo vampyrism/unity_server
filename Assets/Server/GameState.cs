@@ -22,7 +22,7 @@ namespace Assets.Server
         private GameState()
         {
             this.Entities = new Dictionary<UInt32, Entity>();
-            this.dayNightCycle = new DayNightCycle(40, 20);
+            this.dayNightCycle = new DayNightCycle(10, 10);
         }
 
 
@@ -30,6 +30,32 @@ namespace Assets.Server
         {
             // Update game time
             dayNightCycle.FixedUpdate();
+        }
+
+        public void SpawnEnemies()
+        {
+            // Check to see how many enemies we need to fill up the map with
+            int alive = 0;
+            foreach (KeyValuePair<UInt32, Entity> kvp in GameState.instance.Entities) 
+            {
+                if (kvp.Value is Enemy && ((Enemy) kvp.Value).IsAlive()) {
+                    alive += 1;
+                }
+            }
+            Debug.Log("alive: " + alive);
+
+            int enemies = 2 + (int) Math.Floor(Time.realtimeSinceStartup / 100);
+
+            for (int i = 0; i < enemies - alive; i++)
+            {
+                UInt32 id = CreateEnemy(45, 45);
+                EntityUpdateMessage message = new EntityUpdateMessage(
+                    EntityUpdateMessage.Type.ENEMY,
+                    EntityUpdateMessage.Action.CREATE,
+                    id
+                );
+                UDPServer.getInstance().BroadcastMessage(message);
+            }
         }
 
         /// <summary>
@@ -200,7 +226,7 @@ namespace Assets.Server
         /// <param name="clickPositionY">Y position of the attack<c>Player</c>.</param>
         public void PlayerAttack(UInt32 playerId, short weaponId, float clickPositionX, float clickPositionY)
         {
-            Debug.Log("Start of PlayerAttack");
+            //Debug.Log("Start of PlayerAttack");
             Vector2 clickPosition;
             clickPosition.x = clickPositionX;
             clickPosition.y = clickPositionY;
@@ -208,7 +234,7 @@ namespace Assets.Server
             Player player = (Player) GetEntity(playerId);
 
             AttackMessage AttackInit = new AttackMessage(0, playerId, 0, 0, 0, weaponId, 0, 0, clickPositionX, clickPositionY, 1);
-            Debug.Log("Broadcasting in PlayerATtack");
+            //Debug.Log("Broadcasting in PlayerATtack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
 
             player.TryToAttack(clickPosition, weaponId);
@@ -222,13 +248,13 @@ namespace Assets.Server
         /// <param name="clickPositionX">X position of the attack <c>Player</c>.</param>
         /// <param name="clickPositionY">Y position of the attack<c>Player</c>.</param>
         public void EnemyAttack(UInt32 enemyID, UInt32 targetPlayerID) {
-            Debug.Log("Start of EnemyAttack");
+            //Debug.Log("Start of EnemyAttack");
 
             Enemy enemy = (Enemy)GetEntity(enemyID);
             Player player = (Player)GetEntity(targetPlayerID);
 
             AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, 0, 0, 0, 0, 0, 0, 1);
-            Debug.Log("Broadcasting in EnemyAttack");
+            //Debug.Log("Broadcasting in EnemyAttack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
 
             AttackValid(targetPlayerID, enemy.GetEnemyDamage());

@@ -139,12 +139,17 @@ public class Enemy : Character
     }
 
     public override void TakeDamage(float damage) {
-        Debug.Log("Enemy took " + damage + " damage!");
+        //Debug.Log("Enemy took " + damage + " damage!");
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0) {
             Destroy(gameObject);
         }
         vampireIsDay = false;
+    }
+
+    public bool IsAlive()
+    {
+        return currentHealth > 0;
     }
 
     public void RemovePlayerFromTargets(Transform removedPlayer) {
