@@ -77,7 +77,7 @@ namespace Assets.Server
                             EntityUpdateMessage.Action.CREATE,
                             kv.Key
                             );
-                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+                        MovementMessage move = new MovementMessage(kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
@@ -91,7 +91,7 @@ namespace Assets.Server
                             EntityUpdateMessage.Action.CREATE,
                             kv.Key
                             );
-                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+                        MovementMessage move = new MovementMessage(kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
@@ -122,7 +122,7 @@ namespace Assets.Server
                             throw new Exception("Weapon type not found");
                         }
                         Debug.Log("Creating a weapon move message with x: " + e.X + " y: " + e.Y);
-                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+                        MovementMessage move = new MovementMessage(kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
@@ -143,7 +143,7 @@ namespace Assets.Server
                     );
                 UDPServer.getInstance().BroadcastMessage(NewClient);
 
-                MovementMessage ClientMovement = new MovementMessage(0, this.PlayerID, 0, 0, 0, 0, 0, 0, 0);
+                MovementMessage ClientMovement = new MovementMessage(this.PlayerID, 0, 0, 0, 0, 0, 0, 0);
                 UDPServer.getInstance().BroadcastMessage(ClientMovement);
 
                 EntityUpdateMessage control = new EntityUpdateMessage(
@@ -265,8 +265,9 @@ namespace Assets.Server
         /// Acks incoming packet
         /// </summary>
         /// <param name="packet">the packet to ack</param>
-        public void AckIncomingPacket(UDPPacket packet)
+        public bool AckIncomingPacket(UDPPacket packet)
         {
+            bool result = false;
             int i = packet.SequenceNumber % BufferSize;
             
             if(packet.SequenceNumber > this.RemoteSeqNum)
@@ -274,6 +275,11 @@ namespace Assets.Server
                 this.RemoteSeqNum = packet.SequenceNumber;
             }
 
+            if (this.ReceiveSequenceBuffer[i] != packet.SequenceNumber
+                && !this.ReceiveBuffer[i].Acked)
+            {
+                result = true;
+            }
             this.ReceiveSequenceBuffer[i] = packet.SequenceNumber;
             this.ReceiveBuffer[i].Acked = true;
             this.ReceiveBuffer[i].Packet = packet;
@@ -295,6 +301,8 @@ namespace Assets.Server
                     }
                 }
             }
+
+            return result;
         }
 
         public UDPAckPacket GetSentPacket(UInt16 SequenceNumber)
