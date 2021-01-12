@@ -22,6 +22,7 @@ namespace Assets.Server
             {
                 DAY_NIGHT,
                 GAME_OVER,
+                GAME_START
             }
 
             public enum Descriptor : byte
