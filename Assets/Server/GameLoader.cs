@@ -15,6 +15,19 @@ public class GameLoader : MonoBehaviour
         GameState.instance.CreateEnemy(50, 50);
         GameState.instance.CreateEnemy(45, 45);
         GameState.instance.CreateBow(48, 52);
+        GameState.instance.CreateBow(40, 72);
+        GameState.instance.CreateBow(8, 92);
+        GameState.instance.CreateBow(8, 30);
+        GameState.instance.CreateBow(88, 95);
+        GameState.instance.CreateBow(60, 30);
         GameState.instance.CreateCrossbow(50, 52);
+        GameState.instance.CreateCrossbow(91, 95);
+        GameState.instance.CreateCrossbow(89, 20);
+        GameState.instance.CreateCrossbow(73, 35);
+        GameState.instance.CreateCrossbow(43, 92);
+        GameState.instance.CreateCrossbow(17, 91);
+
+
     }
 }
+
