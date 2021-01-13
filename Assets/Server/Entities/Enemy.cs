@@ -1,4 +1,4 @@
-﻿using Assets.Server;
+using Assets.Server;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -151,6 +151,7 @@ public class Enemy : Character
         Debug.Log("Enemy took " + damage + " damage!");
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0) {
+            GameState.instance.HandleKilledEntity(damage, this.ID);
             Destroy(gameObject);
         }
         vampireIsDay = false;
