@@ -13,17 +13,15 @@ namespace Assets.Server
     public class AttackMessage : Message
     {
         // Total size of message
-        public static readonly int MESSAGE_SIZE = 26;
+        public static readonly int MESSAGE_SIZE = 27;
 
         // Indices for the values in the message
         // Bytes   | Description
         // --------------------------
         // 0       | Type ID
         private static readonly int TYPE_ID = 0;
-        // 1-2     | Sequence number
-        private static readonly int SEQUENCE_NUMBER = 1;
         // 3-4     | Entity ID
-        private static readonly int ENTITY_ID = 3;
+        private static readonly int ENTITY_ID = 1;
         // 5       | Entity action type
         private static readonly int ACTION_TYPE = 5;
         // 6       | Entity action descriptor
@@ -31,17 +29,20 @@ namespace Assets.Server
         // 7-8     | Entity X coordinate
         private static readonly int TARGET_ENTITY_ID = 7;
         // 9   | Type of weapon to use
-        private static readonly int WEAPON_TYPE = 9;
+        private static readonly int WEAPON_TYPE = 11;
         // 10   | 0 is an invalid attack 1 is valid
-        private static readonly int ATTACK_VALID = 10;
+        private static readonly int ATTACK_VALID = 12;
         // 11-14 | Attack damage amount
-        private static readonly int DAMAGE_AMOUNT = 11;
+        private static readonly int DAMAGE_AMOUNT = 13;
         // 15-18  | Attack vector direction
-        private static readonly int ATTACK_POSITION_X = 15;
+        private static readonly int ATTACK_POSITION_X = 17;
         // 19-22  | Attack vector direction
-        private static readonly int ATTACK_POSITION_Y = 19;
+        private static readonly int ATTACK_POSITION_Y = 21;
         // 23  | Attack initiated 0 for false 1 for true
-        private static readonly int ATTACK_INITIATED = 24;
+        private static readonly int ATTACK_INITIATED = 25;
+        // 24  | Entity killed 0 for false 1 for true
+        private static readonly int ENTITY_KILLED = 26;
+
         // Byte array containing the information
 
         private byte[] message = new byte[MESSAGE_SIZE];
@@ -58,10 +59,9 @@ namespace Assets.Server
             message[TYPE_ID] = ATTACK;
         }
 
-        public AttackMessage(short seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount, float attackPositionX, float attackPositionY, short attackInit)
+        public AttackMessage(UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount, float attackPositionX, float attackPositionY, short attackInit, short entityKilled)
         {
             message[TYPE_ID] = ATTACK;
-            SetSequenceNumber(seqNum);
             SetEntityId(entityId);
             SetActionType(actionType);
             SetActionDescriptor(actionDescriptor);
@@ -72,18 +72,14 @@ namespace Assets.Server
             SetAttackPositionX(attackPositionX);
             SetAttackPositionY(attackPositionY);
             SetAttackInitiated(attackInit);
+            SetEntityKilled(entityKilled);
         }
 
         // The Setters will convert the argument to bytes and copy them into the message buffer
 
-        public void SetSequenceNumber(short sn)
-        {
-            Array.Copy(BitConverter.GetBytes(sn), 0, message, SEQUENCE_NUMBER, 2);
-        }
-
         public void SetEntityId(UInt32 ei)
         {
-            Array.Copy(BitConverter.GetBytes(ei), 0, message, ENTITY_ID, 2);
+            Array.Copy(BitConverter.GetBytes(ei), 0, message, ENTITY_ID, 4);
         }
 
         public void SetActionType(byte at)
@@ -98,15 +94,15 @@ namespace Assets.Server
 
         public void SetTargetEntityId(UInt32 tid)
         {
-            Array.Copy(BitConverter.GetBytes(tid), 0, message, TARGET_ENTITY_ID, 2);
+            Array.Copy(BitConverter.GetBytes(tid), 0, message, TARGET_ENTITY_ID, 4);
         }
         public void SetWeaponType(short wid)
         {
-            Array.Copy(BitConverter.GetBytes(wid), 0, message, WEAPON_TYPE, 1);
+            Array.Copy(BitConverter.GetBytes((byte)wid), 0, message, WEAPON_TYPE, 1);
         }
         public void SetAttackValid(short avl)
         {
-            Array.Copy(BitConverter.GetBytes(avl), 0, message, ATTACK_VALID, 1);
+            Array.Copy(BitConverter.GetBytes((byte)avl), 0, message, ATTACK_VALID, 1);
         }
         public void SetDamageAmount(float dmg)
         {
@@ -122,12 +118,15 @@ namespace Assets.Server
         }
         public void SetAttackInitiated(short ati)
         {
-            Array.Copy(BitConverter.GetBytes(ati), 0, message, ATTACK_INITIATED, 2);
+            Array.Copy(BitConverter.GetBytes((byte)ati), 0, message, ATTACK_INITIATED, 1);
+        }
+        public void SetEntityKilled(short ek)
+        {
+            Array.Copy(BitConverter.GetBytes((byte)ek), 0, message, ENTITY_KILLED, 1);
         }
 
         // Getters 
 
-        public short GetSequenceNumber() => BitConverter.ToInt16(message, SEQUENCE_NUMBER);
         public uint GetEntityId() => BitConverter.ToUInt32(message, ENTITY_ID);
         public byte GetActionType() => message[ACTION_TYPE];
         public byte GetActionDescriptor() => message[ACTION_DESCRIPTOR];
@@ -137,7 +136,8 @@ namespace Assets.Server
         public float GetDamageAmount() => BitConverter.ToSingle(message, DAMAGE_AMOUNT);
         public float GetAttackPositionX() => BitConverter.ToSingle(message, ATTACK_POSITION_X);
         public float GetAttackPositionY() => BitConverter.ToSingle(message, ATTACK_POSITION_Y);
-        public short GetAttackInitiated() => BitConverter.ToInt16(message, ATTACK_INITIATED);
+        public short GetAttackInitiated() => message[ATTACK_INITIATED];
+        public short GetEntityKilled() => message[ENTITY_KILLED];
         public override byte[] Serialize() => message;
 
         public override int Size() => MESSAGE_SIZE;
@@ -145,7 +145,6 @@ namespace Assets.Server
         public override string ToString()
         {
             string s = "\n";
-            s += "Sequence nr\t" + GetSequenceNumber() + "\n";
             s += "Entity id  \t" + GetEntityId() + "\n";
             s += "Action type\t" + GetActionType() + "\n";
             s += "Action desc\t" + GetActionDescriptor() + "\n";
@@ -156,6 +155,7 @@ namespace Assets.Server
             s += "Attack direction x\t" + GetAttackPositionX() + "\n";
             s += "Attack Direction y\t" + GetAttackPositionY() + "\n";
             s += "Attack Initiated\t" + GetAttackInitiated() + "\n";
+            s += "Entity Killed\t" + GetEntityKilled() + "\n";
             return s;
         }
 

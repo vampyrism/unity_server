@@ -59,6 +59,18 @@ namespace Assets.Server
             Server.instance.TaskQueue.Enqueue(new Action(() => { this.Init(); }));
         }
 
+        private void UpdateHP(KeyValuePair<UInt32, Entity> kv)
+        {
+            Character character = (Character)kv.Value;
+            EntityUpdateMessage hpUpdate = new EntityUpdateMessage(
+                EntityUpdateMessage.Type.PLAYER,
+                EntityUpdateMessage.Action.HP_UPDATE,
+                kv.Value.ID,
+                character.currentHealth);
+            this.SendMessage(hpUpdate);
+            Debug.Log("hello");
+        }
+
         /// <summary>
         /// Initializes Player, must be run on the main thread
         /// </summary>
@@ -69,18 +81,21 @@ namespace Assets.Server
                 // Update gamestate of current client
                 foreach (KeyValuePair<UInt32, Entity> kv in GameState.instance.Entities)
                 {
+
                     if (kv.Value.GetType() == typeof(Player)) // TODO: Create all entities, not just player
                     {
                         Player e = (Player) kv.Value;
                         EntityUpdateMessage entity = new EntityUpdateMessage(
                             EntityUpdateMessage.Type.PLAYER,
                             EntityUpdateMessage.Action.CREATE,
-                            kv.Key
+                            kv.Key,
+                            0
                             );
-                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+                        MovementMessage move = new MovementMessage(kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
+                        this.UpdateHP(kv);
                     }
 
                     if (kv.Value.GetType() == typeof(Enemy))
@@ -89,12 +104,14 @@ namespace Assets.Server
                         EntityUpdateMessage entity = new EntityUpdateMessage(
                             EntityUpdateMessage.Type.ENEMY,
                             EntityUpdateMessage.Action.CREATE,
-                            kv.Key
+                            kv.Key,
+                            0
                             );
-                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+                        MovementMessage move = new MovementMessage(kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
+                        this.UpdateHP(kv);
                     }
 
                     if (kv.Value.GetType() == typeof(Bow) || kv.Value.GetType() == typeof(Crossbow))
@@ -106,7 +123,8 @@ namespace Assets.Server
                             entity = new EntityUpdateMessage(
                                 EntityUpdateMessage.Type.WEAPON_BOW,
                                 EntityUpdateMessage.Action.CREATE,
-                                kv.Key
+                                kv.Key,
+                                0
                                 );
                         } 
                         else if ( e.GetType() == typeof(Crossbow)) 
@@ -114,7 +132,8 @@ namespace Assets.Server
                             entity = new EntityUpdateMessage(
                                 EntityUpdateMessage.Type.WEAPON_CROSSBOW,
                                 EntityUpdateMessage.Action.CREATE,
-                                kv.Key
+                                kv.Key,
+                                0
                                 );
                         } 
                         else 
@@ -122,12 +141,11 @@ namespace Assets.Server
                             throw new Exception("Weapon type not found");
                         }
                         Debug.Log("Creating a weapon move message with x: " + e.X + " y: " + e.Y);
-                        MovementMessage move = new MovementMessage(0, kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
+                        MovementMessage move = new MovementMessage(kv.Key, 0, 0, e.X, e.Y, 0, e.DX, e.DY);
 
                         this.SendMessage(entity);
                         this.SendMessage(move);
                     }
-
                 }
 
                 //this.Player = GameObject.Instantiate(Resources.Load("Player") as GameObject);
@@ -139,17 +157,19 @@ namespace Assets.Server
                 EntityUpdateMessage NewClient = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.PLAYER,
                     EntityUpdateMessage.Action.CREATE,
-                    this.PlayerID
+                    this.PlayerID,
+                    0
                     );
                 UDPServer.getInstance().BroadcastMessage(NewClient);
 
-                MovementMessage ClientMovement = new MovementMessage(0, this.PlayerID, 0, 0, 0, 0, 0, 0, 0);
+                MovementMessage ClientMovement = new MovementMessage(this.PlayerID, 0, 0, 0, 0, 0, 0, 0);
                 UDPServer.getInstance().BroadcastMessage(ClientMovement);
 
                 EntityUpdateMessage control = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.PLAYER,
                     EntityUpdateMessage.Action.CONTROL,
-                    this.PlayerID
+                    this.PlayerID,
+                    0
                     );
                 this.SendMessage(control);
             }
@@ -265,8 +285,9 @@ namespace Assets.Server
         /// Acks incoming packet
         /// </summary>
         /// <param name="packet">the packet to ack</param>
-        public void AckIncomingPacket(UDPPacket packet)
+        public bool AckIncomingPacket(UDPPacket packet)
         {
+            bool result = false;
             int i = packet.SequenceNumber % BufferSize;
             
             if(packet.SequenceNumber > this.RemoteSeqNum)
@@ -274,6 +295,11 @@ namespace Assets.Server
                 this.RemoteSeqNum = packet.SequenceNumber;
             }
 
+            if (this.ReceiveSequenceBuffer[i] != packet.SequenceNumber
+                && !this.ReceiveBuffer[i].Acked)
+            {
+                result = true;
+            }
             this.ReceiveSequenceBuffer[i] = packet.SequenceNumber;
             this.ReceiveBuffer[i].Acked = true;
             this.ReceiveBuffer[i].Packet = packet;
@@ -295,6 +321,8 @@ namespace Assets.Server
                     }
                 }
             }
+
+            return result;
         }
 
         public UDPAckPacket GetSentPacket(UInt16 SequenceNumber)
@@ -327,7 +355,8 @@ namespace Assets.Server
                     EntityUpdateMessage message = new EntityUpdateMessage(
                         EntityUpdateMessage.Type.PLAYER,
                         EntityUpdateMessage.Action.DELETE,
-                        this.PlayerID
+                        this.PlayerID,
+                        0
                         );
                     UDPServer.getInstance().BroadcastMessage(message);
                 }

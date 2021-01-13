@@ -159,3 +159,4 @@ MonoBehaviour:
   isRanged: 1
   projectile: {fileID: 6764305579454125916, guid: 8941f1fd1714cc34d92ebdd7edb9b54f,
     type: 3}
+

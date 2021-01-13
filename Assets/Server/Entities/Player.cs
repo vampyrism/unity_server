@@ -87,6 +87,7 @@ public class Player : Character
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0)
         {
+            GameState.instance.HandleKilledEntity(damage, this.ID);
             Destroy(gameObject);
         }
     }
@@ -112,7 +113,6 @@ public class Player : Character
             //base.DY = body.velocity.y;
 
             Assets.Server.MovementMessage m = new Assets.Server.MovementMessage(
-            0,
             this.ID,
             0,
             0,
@@ -135,7 +135,6 @@ public class Player : Character
         base.DY = body.velocity.y;
 
         Assets.Server.MovementMessage m = new Assets.Server.MovementMessage(
-            0,
             this.ID,
             0,
             0,
