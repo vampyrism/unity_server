@@ -8,36 +8,34 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime;
 using System.Security.Cryptography;
 
-namespace Assets.Server 
+namespace Assets.Server
 {
     public class MovementMessage : Message
     {
         // Total size of message
-        public static readonly int MESSAGE_SIZE = 29;
+        public static readonly int MESSAGE_SIZE = 27;
 
         // Indices for the values in the message
         // Bytes   | Description
         // --------------------------
         // 0       | Type ID
         private static readonly int TYPE_ID = 0;
-        // 1-2     | Sequence number
-        private static readonly int SEQUENCE_NUMBER = 1;
         // 3-4     | Entity ID
-        private static readonly int ENTITY_ID = 3;
+        private static readonly int ENTITY_ID = 1;
         // 5       | Entity action type
-        private static readonly int ACTION_TYPE = 7;
+        private static readonly int ACTION_TYPE = 5;
         // 6       | Entity action descriptor
-        private static readonly int ACTION_DESCRIPTOR = 8;
+        private static readonly int ACTION_DESCRIPTOR = 6;
         // 7-10     | Entity X coordinate
-        private static readonly int X_COORDINATE = 9;
+        private static readonly int X_COORDINATE = 7;
         // 11-14   | Entity Y coordinate
-        private static readonly int Y_COORDINATE = 13;
+        private static readonly int Y_COORDINATE = 11;
         // 15-18   | Entity rotation
-        private static readonly int ROTATION = 17;
+        private static readonly int ROTATION = 15;
         // 19-22   | Entity X velocity
-        private static readonly int X_VELOCITY = 21;
+        private static readonly int X_VELOCITY = 19;
         // 23-26   | Entity Y velocity
-        private static readonly int Y_VELOCITY = 25;
+        private static readonly int Y_VELOCITY = 23;
 
         // Byte array containing the information
         private byte[] message = new byte[MESSAGE_SIZE];
@@ -52,10 +50,9 @@ namespace Assets.Server
             Array.Copy(bytes, cursor, message, 0, MESSAGE_SIZE);
         }
 
-        public MovementMessage(ushort seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
+        public MovementMessage(UInt32 entityId, byte actionType, byte actionDescriptor, float x, float y, float r, float xd, float yd)
         {
             message[TYPE_ID] = MOVEMENT;
-            SetSequenceNumber(seqNum);
             SetEntityId(entityId);
             SetActionType(actionType);
             SetActionDescriptor(actionDescriptor);
@@ -67,11 +64,6 @@ namespace Assets.Server
         }
 
         // The Setters will convert the argument to bytes and copy them into the message buffer
-
-        public void SetSequenceNumber(ushort sn)
-        {
-            Array.Copy(BitConverter.GetBytes(sn), 0, message, SEQUENCE_NUMBER, 2);
-        }
 
         public void SetEntityId(UInt32 ei)
         {
@@ -115,7 +107,6 @@ namespace Assets.Server
 
         // Getters 
 
-        public ushort GetSequenceNumber() => BitConverter.ToUInt16(message, SEQUENCE_NUMBER);
 
         public UInt32 GetEntityId() => BitConverter.ToUInt32(message, ENTITY_ID);
 
@@ -140,7 +131,6 @@ namespace Assets.Server
         public override string ToString()
         {
             string s = "\n";
-            s += "Sequence nr\t" + GetSequenceNumber() + "\n";
             s += "Entity id  \t" + GetEntityId() + "\n";
             s += "Action type\t" + GetActionType() + "\n";
             s += "Action desc\t" + GetActionDescriptor() + "\n";
