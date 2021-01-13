@@ -13,35 +13,33 @@ namespace Assets.Server
     public class AttackMessage : Message
     {
         // Total size of message
-        public static readonly int MESSAGE_SIZE = 26;
+        public static readonly int MESSAGE_SIZE = 23;
 
         // Indices for the values in the message
         // Bytes   | Description
         // --------------------------
         // 0       | Type ID
         private static readonly int TYPE_ID = 0;
-        // 1-2     | Sequence number
-        private static readonly int SEQUENCE_NUMBER = 1;
         // 3-4     | Entity ID
-        private static readonly int ENTITY_ID = 3;
+        private static readonly int ENTITY_ID = 1;
         // 5       | Entity action type
-        private static readonly int ACTION_TYPE = 5;
+        private static readonly int ACTION_TYPE = 3;
         // 6       | Entity action descriptor
-        private static readonly int ACTION_DESCRIPTOR = 6;
+        private static readonly int ACTION_DESCRIPTOR = 4;
         // 7-8     | Entity X coordinate
-        private static readonly int TARGET_ENTITY_ID = 7;
+        private static readonly int TARGET_ENTITY_ID = 5;
         // 9   | Type of weapon to use
-        private static readonly int WEAPON_TYPE = 9;
+        private static readonly int WEAPON_TYPE = 7;
         // 10   | 0 is an invalid attack 1 is valid
-        private static readonly int ATTACK_VALID = 10;
+        private static readonly int ATTACK_VALID = 8;
         // 11-14 | Attack damage amount
-        private static readonly int DAMAGE_AMOUNT = 11;
+        private static readonly int DAMAGE_AMOUNT = 9;
         // 15-18  | Attack vector direction
-        private static readonly int ATTACK_POSITION_X = 15;
+        private static readonly int ATTACK_POSITION_X = 13;
         // 19-22  | Attack vector direction
-        private static readonly int ATTACK_POSITION_Y = 19;
+        private static readonly int ATTACK_POSITION_Y = 17;
         // 23  | Attack initiated 0 for false 1 for true
-        private static readonly int ATTACK_INITIATED = 24;
+        private static readonly int ATTACK_INITIATED = 21;
         // Byte array containing the information
 
         private byte[] message = new byte[MESSAGE_SIZE];
@@ -58,10 +56,9 @@ namespace Assets.Server
             message[TYPE_ID] = ATTACK;
         }
 
-        public AttackMessage(short seqNum, UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount, float attackPositionX, float attackPositionY, short attackInit)
+        public AttackMessage(UInt32 entityId, byte actionType, byte actionDescriptor, UInt32 targetEntityId, short weaponType, short attackValid, float damageAmount, float attackPositionX, float attackPositionY, short attackInit)
         {
             message[TYPE_ID] = ATTACK;
-            SetSequenceNumber(seqNum);
             SetEntityId(entityId);
             SetActionType(actionType);
             SetActionDescriptor(actionDescriptor);
@@ -75,11 +72,6 @@ namespace Assets.Server
         }
 
         // The Setters will convert the argument to bytes and copy them into the message buffer
-
-        public void SetSequenceNumber(short sn)
-        {
-            Array.Copy(BitConverter.GetBytes(sn), 0, message, SEQUENCE_NUMBER, 2);
-        }
 
         public void SetEntityId(UInt32 ei)
         {
@@ -127,7 +119,6 @@ namespace Assets.Server
 
         // Getters 
 
-        public short GetSequenceNumber() => BitConverter.ToInt16(message, SEQUENCE_NUMBER);
         public uint GetEntityId() => BitConverter.ToUInt32(message, ENTITY_ID);
         public byte GetActionType() => message[ACTION_TYPE];
         public byte GetActionDescriptor() => message[ACTION_DESCRIPTOR];
@@ -145,7 +136,6 @@ namespace Assets.Server
         public override string ToString()
         {
             string s = "\n";
-            s += "Sequence nr\t" + GetSequenceNumber() + "\n";
             s += "Entity id  \t" + GetEntityId() + "\n";
             s += "Action type\t" + GetActionType() + "\n";
             s += "Action desc\t" + GetActionDescriptor() + "\n";

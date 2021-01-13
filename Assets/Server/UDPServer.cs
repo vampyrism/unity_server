@@ -153,7 +153,10 @@ namespace Assets.Server
             #region ackpacket
             bool s = this.clients.TryGetValue((ip, port), out Client c);
             if (!s) throw new Exception("Unable to find client");
-            c.AckIncomingPacket(packet);
+            if(!c.AckIncomingPacket(packet))
+            {
+                return;
+            }
             #endregion
 
             List<Message> messages = packet.GetMessages();
