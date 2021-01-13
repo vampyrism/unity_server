@@ -52,8 +52,10 @@ namespace Assets.Server
                 EntityUpdateMessage message = new EntityUpdateMessage(
                     EntityUpdateMessage.Type.ENEMY,
                     EntityUpdateMessage.Action.CREATE,
-                    id
+                    id,
+                    20
                 );
+                // ^ Hard coded enemy health
                 UDPServer.getInstance().BroadcastMessage(message);
             }
         }
