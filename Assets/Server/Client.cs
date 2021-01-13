@@ -22,7 +22,7 @@ namespace Assets.Server
 
         // Send and Receive buffers
         #region send_receive_buffers
-        private static readonly UInt16 BufferSize = 1024;
+        public static readonly UInt16 BufferSize = 1024;
         public UInt32[] ReceiveSequenceBuffer   { get; private set; } = new UInt32[BufferSize];
         public UInt32[] SendSequenceBuffer      { get; private set; } = new UInt32[BufferSize];
         public UDPAckPacket[] SendBuffer        { get; private set; } = new UDPAckPacket[BufferSize];
@@ -183,20 +183,23 @@ namespace Assets.Server
             UDPPacket p = this.NextPacket();
             this.PacketQueue.Enqueue(p);
 
-            for(int i = 1; i <= 2; i++)
+            #region resend_packets
+            for (int i = 1; i <= 2; i++)
             {
-                int index = (UInt16) (this.LocalSeqNum - (UInt16)(i * 30)) % BufferSize;
+                int index = (UInt16) (this.LocalSeqNum - i * 30) % BufferSize;
 
-                if(this.SendSequenceBuffer[index] == (UInt16) (this.LocalSeqNum - (UInt16)(i * 30)))
+                if(this.SendSequenceBuffer[index] == index)
                 {
                     if(!this.SendBuffer[index].Acked)
                     {
+                        Debug.LogWarning("Resending packet with seqid " + index);
                         this.PacketQueue.Enqueue(this.SendBuffer[index].Packet);
                     }
                 }
-            }    
+            }
+            #endregion
         }
-        
+
         // Update time when client last made contact
         public void MadeContact()
         {
