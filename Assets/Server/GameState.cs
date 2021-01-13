@@ -40,10 +40,10 @@ namespace Assets.Server
             {
                 if (kvp.Value is Enemy && ((Enemy) kvp.Value).IsAlive()) {
                     alive += 1;
-                }
+                } 
             }
-            Debug.Log("alive: " + alive);
 
+            // Arbitrary equation, start with two vampires and add one every 100 seconds
             int enemies = 2 + (int) Math.Floor(Time.realtimeSinceStartup / 100);
 
             for (int i = 0; i < enemies - alive; i++)
@@ -254,7 +254,7 @@ namespace Assets.Server
             Player player = (Player)GetEntity(targetPlayerID);
 
             AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, targetPlayerID, 0, 0, 0, player.X, player.Y, 1);
-            Debug.Log("Broadcasting in EnemyAttack");
+            //Debug.Log("Broadcasting in EnemyAttack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
         }
 
