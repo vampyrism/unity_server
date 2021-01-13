@@ -233,8 +233,8 @@ namespace Assets.Server
 
             Player player = (Player) GetEntity(playerId);
 
-            AttackMessage AttackInit = new AttackMessage(0, playerId, 0, 0, 0, weaponId, 0, 0, clickPositionX, clickPositionY, 1);
-            //Debug.Log("Broadcasting in PlayerATtack");
+            AttackMessage AttackInit = new AttackMessage(playerId, 0, 0, 0, weaponId, 0, 0, clickPositionX, clickPositionY, 1);
+            Debug.Log("Broadcasting in PlayerATtack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
 
             player.TryToAttack(clickPosition, weaponId);
@@ -253,8 +253,8 @@ namespace Assets.Server
             Enemy enemy = (Enemy)GetEntity(enemyID);
             Player player = (Player)GetEntity(targetPlayerID);
 
-            AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, targetPlayerID, 0, 0, 0, player.X, player.Y, 1);
-            //Debug.Log("Broadcasting in EnemyAttack");
+            AttackMessage AttackInit = new AttackMessage(enemyID, 0, 0, targetPlayerID, 0, 0, 0, player.X, player.Y, 1);
+            Debug.Log("Broadcasting in EnemyAttack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
         }
 
