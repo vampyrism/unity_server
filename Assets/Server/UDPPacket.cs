@@ -28,6 +28,7 @@ namespace Assets.Server
     public struct UDPAckPacket
     {
         public bool Acked;
+        public bool Executed;
         public double SendTime;
         public UDPPacket Packet;
     }

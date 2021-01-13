@@ -25,7 +25,6 @@ namespace Assets.Server
         private static readonly UInt16 BufferSize = 1024;
         public UInt32[] ReceiveSequenceBuffer   { get; private set; } = new UInt32[BufferSize];
         public UInt32[] SendSequenceBuffer      { get; private set; } = new UInt32[BufferSize];
-        public UDPAckPacket[] ReceiveBuffer     { get; private set; } = new UDPAckPacket[BufferSize];
         public UDPAckPacket[] SendBuffer        { get; private set; } = new UDPAckPacket[BufferSize];
         #endregion
         #endregion
@@ -186,9 +185,9 @@ namespace Assets.Server
 
             for(int i = 1; i <= 2; i++)
             {
-                int index = (UInt16) (this.LocalSeqNum - (UInt16)(i * 15)) % BufferSize;
+                int index = (UInt16) (this.LocalSeqNum - (UInt16)(i * 30)) % BufferSize;
 
-                if(this.SendSequenceBuffer[index] == (UInt16) (this.LocalSeqNum - (UInt16)(i * 15)))
+                if(this.SendSequenceBuffer[index] == (UInt16) (this.LocalSeqNum - (UInt16)(i * 30)))
                 {
                     if(!this.SendBuffer[index].Acked)
                     {
@@ -213,22 +212,13 @@ namespace Assets.Server
         {
             UDPPacket p = BuildPacket(new UDPPacket(this.LocalSeqNum, this.RemoteSeqNum));
 
-            UInt16 index = (UInt16)(this.RemoteSeqNum % BufferSize);
-            for (UInt16 offset = 0; offset < 32; offset++)
+            for (int offset = 0; offset < 32; offset++)
             {
-                int i = (UInt16)(this.RemoteSeqNum - (UInt16)offset) % BufferSize;
+                int i = ((UInt16) (this.RemoteSeqNum - offset)) % BufferSize;
 
-                if(i < 0)
+                if (this.ReceiveSequenceBuffer[i] == (UInt16) (this.RemoteSeqNum - offset))
                 {
-                    i = BufferSize + i;
-                }
-
-                if (this.ReceiveSequenceBuffer[i] == (UInt16)(this.RemoteSeqNum - offset))
-                {
-                    if(this.ReceiveBuffer[i].Acked)
-                    {
-                        p.AckPacket((UInt16)(this.RemoteSeqNum - offset));
-                    }
+                    p.AckPacket((UInt16)(this.RemoteSeqNum - offset));
                 }
             }
 
@@ -269,18 +259,6 @@ namespace Assets.Server
             this.MessageQueue.Enqueue(m);
         }
 
-        private int WrapArray(int a)
-        {
-            if (a < 0)
-            {
-                return BufferSize + a;
-            }
-            else
-            {
-                return a;
-            }
-        }
-
         /// <summary>
         /// Acks incoming packet
         /// </summary>
@@ -289,20 +267,17 @@ namespace Assets.Server
         {
             bool result = false;
             int i = packet.SequenceNumber % BufferSize;
-            
-            if(packet.SequenceNumber > this.RemoteSeqNum)
+
+            if (packet.SequenceNumber > this.RemoteSeqNum)
             {
                 this.RemoteSeqNum = packet.SequenceNumber;
             }
 
-            if (this.ReceiveSequenceBuffer[i] != packet.SequenceNumber
-                && !this.ReceiveBuffer[i].Acked)
+            if (this.ReceiveSequenceBuffer[i] != packet.SequenceNumber)
             {
                 result = true;
             }
             this.ReceiveSequenceBuffer[i] = packet.SequenceNumber;
-            this.ReceiveBuffer[i].Acked = true;
-            this.ReceiveBuffer[i].Packet = packet;
 
 
             i = packet.AckNumber % BufferSize;
@@ -311,13 +286,13 @@ namespace Assets.Server
                 this.SendBuffer[i].Acked = true;
             }
 
-            for (UInt16 offset = 1; offset <= 32; offset++)
+            for (int offset = 1; offset <= 32; offset++)
             {
-                if(packet.AckArray[offset - 1])
+                if (packet.AckArray.Get(offset - 1))
                 {
-                    if(this.SendSequenceBuffer[WrapArray((packet.AckNumber - offset) % BufferSize)] == (packet.AckNumber - offset))
+                    if (this.SendSequenceBuffer[((UInt16)(packet.AckNumber - offset)) % BufferSize] == (packet.AckNumber - offset))
                     {
-                        this.SendBuffer[WrapArray((packet.AckNumber - offset) % BufferSize)].Acked = true;
+                        this.SendBuffer[((UInt16)(packet.AckNumber - offset)) % BufferSize].Acked = true;
                     }
                 }
             }

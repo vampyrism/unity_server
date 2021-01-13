@@ -155,6 +155,9 @@ namespace Assets.Server
             if (!s) throw new Exception("Unable to find client");
             if(!c.AckIncomingPacket(packet))
             {
+                Debug.LogWarning("Ignored packet with seq " + packet.SequenceNumber);
+                Debug.LogWarning("Arrays contain " + c.ReceiveSequenceBuffer[(UInt16)(packet.SequenceNumber % 1024)]);
+                Debug.LogError("Indexed as " + (UInt16)(packet.SequenceNumber % 1024));
                 return;
             }
             #endregion
