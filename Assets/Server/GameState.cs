@@ -253,11 +253,9 @@ namespace Assets.Server
             Enemy enemy = (Enemy)GetEntity(enemyID);
             Player player = (Player)GetEntity(targetPlayerID);
 
-            AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, 0, 0, 0, 0, 0, 0, 1);
-            //Debug.Log("Broadcasting in EnemyAttack");
+            AttackMessage AttackInit = new AttackMessage(0, enemyID, 0, 0, targetPlayerID, 0, 0, 0, player.X, player.Y, 1);
+            Debug.Log("Broadcasting in EnemyAttack");
             UDPServer.getInstance().BroadcastMessage(AttackInit);
-
-            AttackValid(targetPlayerID, enemy.GetEnemyDamage());
         }
 
         /// <summary>

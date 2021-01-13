@@ -39,28 +39,18 @@ namespace Assets.Server
 
         private UDPServer()
         {
-            this.serverEndpoint = new IPEndPoint(IPAddress.Any, 9000);
-            this.remoteSeqNum = 0;
-            this.localSeqNum = 0;
-
+            this.serverEndpoint = new IPEndPoint(IPAddress.Any, Server.port);
             this.tokenSource = new CancellationTokenSource();
             this.token = tokenSource.Token;
         }
 
-        private void AckPacket(UInt16 seq)
+        public void Init(Server server, int server_port)
         {
-            if (remoteSeqNum < seq)
-            {
-                remoteSeqNum = seq;
-            }
-        }
-
-        public void Init(Server server)
-        {
+            this.serverEndpoint = new IPEndPoint(IPAddress.Any, server_port);
             this.server = server;
             this.socket = new UdpClient(serverEndpoint);
             this.clients = new Dictionary<(string, int), Client>();
-            Debug.Log("Started socket on port " + 9000);
+            Debug.Log("Started socket on port " + server_port);
             
             // Clear disconnected clients every second
             ClearDisconnectedTimer = new System.Timers.Timer();
