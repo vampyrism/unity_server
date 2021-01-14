@@ -151,6 +151,7 @@ public class Enemy : Character
         //Debug.Log("Enemy took " + damage + " damage!");
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0) {
+            GameState.instance.HandleKilledEntity(this.enemyDamage, this.ID);
             Destroy(gameObject);
         }
         vampireIsDay = false;
