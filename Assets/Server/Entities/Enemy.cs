@@ -1,4 +1,4 @@
-using Assets.Server;
+﻿using Assets.Server;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -148,13 +148,17 @@ public class Enemy : Character
     }
 
     public override void TakeDamage(float damage) {
-        Debug.Log("Enemy took " + damage + " damage!");
+        //Debug.Log("Enemy took " + damage + " damage!");
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0) {
-            GameState.instance.HandleKilledEntity(damage, this.ID);
             Destroy(gameObject);
         }
         vampireIsDay = false;
+    }
+
+    public bool IsAlive()
+    {
+        return currentHealth > 0;
     }
 
     public void RemovePlayerFromTargets(Transform removedPlayer) {

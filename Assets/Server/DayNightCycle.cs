@@ -48,6 +48,7 @@ namespace Assets.Server
         {
             IsDay = false;
             TimeLeft = NightLength;
+            GameState.instance.SpawnEnemies();
         }
 
         /// <summary>
@@ -75,7 +76,7 @@ namespace Assets.Server
                 StateUpdateMessage.Type.DAY_NIGHT,
                 descriptor
             );
-            Debug.Log(message);
+            //Debug.Log(message);
             UDPServer.getInstance().BroadcastMessage(message);
         }
 
