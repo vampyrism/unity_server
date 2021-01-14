@@ -277,7 +277,7 @@ namespace Assets.Server
 
         public void HandleKilledEntity(float damageAmount, UInt32 entityID)
         {
-            AttackMessage newAttack = new AttackMessage(entityID, 0, 0, 0, 0, 1, damageAmount, 0, 0, 0, 0);
+            AttackMessage newAttack = new AttackMessage(entityID, 0, 0, 0, 0, 1, damageAmount, 0, 0, 0, 1);
             UDPServer.getInstance().BroadcastMessage(newAttack);
         }
 
